@@ -60,8 +60,12 @@ Turning ideas into working projects.
   </a>
 </p>
 <p align="center">
-  <sub>Sensex quote panel refreshes through GitHub Actions every 15 minutes on weekdays during scheduled market hours. Data is supplied by Yahoo Finance and may be delayed. Not for trading decisions.</sub>
+  <sub>The embedded quote is fetched by GitHub Actions every 5 minutes on weekdays during scheduled market hours. Yahoo Finance data may be delayed; GitHub's image cache can delay what appears here. Not for trading decisions.</sub>
 </p>
+<p align="center">
+  <a href="sensex-dashboard.html"><img src="https://img.shields.io/badge/OPEN%20ONE--SECOND%20DEMO%20DASHBOARD-ff79c6?style=for-the-badge&labelColor=111329" alt="Open simulated one-second dashboard"/></a>
+</p>
+<p align="center"><sub>The dashboard currently uses clearly labelled simulated values. Real-time market data integration is a later phase.</sub></p>
 
 ## THE TOOLKIT
 
