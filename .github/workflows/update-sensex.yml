@@ -74,7 +74,7 @@ jobs:
           }
           with open("assets/sensex.json", "w", encoding="utf-8") as file:
               json.dump(snapshot, file, ensure_ascii=False, separators=(",", ":"))
-              file.write("\\n")
+              file.write("\n")
 
           positive = change >= 0
           accent = "#65f2b5" if positive else "#ff718f"
@@ -95,7 +95,7 @@ jobs:
             <text x="32" y="174" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">YAHOO FINANCE SNAPSHOT · MAY BE DELAYED · NOT FOR TRADING</text>
           </svg>'''
           with open("assets/sensex.svg", "w", encoding="utf-8") as file:
-              file.write(svg + "\\n")
+              file.write(svg + "\n")
           PY
 
       - name: Commit updated snapshot and panel
