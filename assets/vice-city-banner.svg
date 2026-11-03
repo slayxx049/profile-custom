@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+<title id="title">Retro neon developer banner</title>
+<desc id="desc">A sunset over a dark retro-futuristic city skyline with palm silhouettes and neon typography.</desc>
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#170b35"/><stop offset=".48" stop-color="#6e1d69"/><stop offset="1" stop-color="#ff6b6b"/></linearGradient>
+  <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff3a6"/><stop offset="1" stop-color="#ff9b6a"/></linearGradient>
+  <linearGradient id="neon" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#7df9ff"/><stop offset=".52" stop-color="#ff79c6"/><stop offset="1" stop-color="#ffe66d"/></linearGradient>
+  <pattern id="grid" width="42" height="22" patternUnits="userSpaceOnUse"><path d="M0 0H42M0 0V22" fill="none" stroke="#ff8bd8" stroke-opacity=".18" stroke-width="1"/></pattern>
+  <clipPath id="sunclip"><circle cx="890" cy="170" r="112"/></clipPath>
+</defs>
+<rect width="1200" height="360" rx="24" fill="url(#sky)"/>
+<circle cx="890" cy="170" r="112" fill="url(#sun)"/>
+<g clip-path="url(#sunclip)" stroke="#7d246e" stroke-width="9" opacity=".8"><path d="M760 150H1020M760 178H1020M760 207H1020M760 238H1020"/></g>
+<path d="M0 275L90 230 150 255 220 205 285 250 360 220 430 260 510 215 585 255 660 220 735 260 810 225 900 260 980 210 1060 250 1140 215 1200 245V360H0Z" fill="#160d2d"/>
+<path d="M0 292L120 260 210 285 310 245 400 282 500 250 610 290 720 255 820 285 930 248 1030 280 1120 250 1200 275V360H0Z" fill="#0b1026"/>
+<g fill="#111027" stroke="#ff79c6" stroke-opacity=".65" stroke-width="2">
+<path d="M70 360V260H110V225H145V260H180V360ZM190 360V285H225V245H260V285H290V360ZM980 360V275H1015V225H1050V275H1085V360ZM1090 360V250H1120V215H1160V250H1190V360Z"/>
+</g>
+<path d="M0 306H1200V360H0Z" fill="url(#grid)" opacity=".9"/>
+<path d="M0 305H1200" stroke="#7df9ff" stroke-opacity=".8" stroke-width="2"/>
+<g fill="none" stroke="#0b1026" stroke-width="10" stroke-linecap="round">
+<path d="M102 360Q105 295 128 236"/>
+<path d="M128 236Q78 218 61 180M128 236Q83 230 45 211M128 236Q113 189 122 153M128 236Q153 190 184 177M128 236Q174 222 205 199"/>
+<path d="M1130 360Q1118 295 1095 238"/>
+<path d="M1095 238Q1047 220 1028 186M1095 238Q1058 238 1018 222M1095 238Q1082 190 1091 155M1095 238Q1125 192 1155 181M1095 238Q1140 224 1172 205"/>
+</g>
+<text x="74" y="105" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="22" letter-spacing="8" opacity=".9">CODE • CREATE • EXPLORE</text>
+<text x="70" y="178" fill="url(#neon)" stroke="#30103f" stroke-width="2" paint-order="stroke" font-family="Arial Black, Arial, sans-serif" font-size="76" font-weight="900" letter-spacing="2">SLAYXX049</text>
+<text x="77" y="218" fill="#fff1f7" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="5">A DEVELOPER IN THE MAKING</text>
+<text x="76" y="335" fill="#b9faff" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="4">RETRO FUTURE / BUILD LOG 001</text>
+</svg>
