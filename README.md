@@ -52,6 +52,17 @@ Turning ideas into working projects.
 </tr>
 </table>
 
+## LIVE MARKET WATCH
+
+<p align="center">
+  <a href="https://finance.yahoo.com/quote/%5EBSESN/">
+    <img src="assets/sensex.svg" alt="Latest available BSE Sensex quote" width="100%"/>
+  </a>
+</p>
+<p align="center">
+  <sub>Sensex quote panel refreshes through GitHub Actions every 15 minutes on weekdays during scheduled market hours. Data is supplied by Yahoo Finance and may be delayed. Not for trading decisions.</sub>
+</p>
+
 ## THE TOOLKIT
 
 <p align="center">
