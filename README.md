@@ -40,6 +40,14 @@ I'm a CSE student interested in programming, AI/ML, and cybersecurity. I like ex
   <img src="https://img.shields.io/badge/MATLAB-0076A8?style=for-the-badge&logo=mathworks&logoColor=white" alt="MATLAB" />
 </p>
 
+## GAME-STYLE TYPE
+
+<p align="center">
+  <img src="assets/game-type.svg" alt="Arcade-inspired and pixel-block typography treatments" width="100%" />
+</p>
+
+<p align="center"><sub>Arcade-display and pixel-block inspired treatments. GitHub profile READMEs do not load repository font files as website CSS, so these are visual approximations rather than embedded Pricedown or Minecraft font files.</sub></p>
+
 ## THINGS I'VE PUT TOGETHER
 
 | PROJECT | WHAT IT IS |
