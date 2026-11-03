@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SENSEX // Neon Market Lab</title>
+<style>
+:root{color-scheme:dark;--cyan:#7df9ff;--pink:#ff79c6;--yellow:#ffe66d;--ink:#090b19;--panel:#11152b;--muted:#a6a9c5;--green:#65f2b5}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 5%,#32204b 0,transparent 35%),radial-gradient(ellipse at 90% 90%,#142e45 0,transparent 40%),var(--ink);color:#f5f2ff;font-family:Arial,Helvetica,sans-serif;padding:28px}
+main{max-width:1000px;margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;color:var(--cyan);letter-spacing:3px;font-size:12px;font-weight:bold}
+h1{font-size:clamp(42px,9vw,86px);line-height:.95;margin:36px 0 8px;letter-spacing:-3px;text-shadow:4px 4px 0 #6b285e,0 0 24px #ff79c677}
+.sub{color:var(--muted);letter-spacing:2px;font-size:12px}.warning{margin:28px 0 18px;padding:13px 16px;border:1px solid var(--yellow);background:#ffe66d12;color:var(--yellow);font-size:12px;letter-spacing:1.2px;font-weight:bold}
+.panel{background:linear-gradient(145deg,#141a35ed,#1b1530ed);border:1px solid #7df9ff66;border-radius:18px;padding:24px;box-shadow:0 0 35px #7df9ff12}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.metric small{display:block;color:var(--muted);font-size:11px;letter-spacing:1.5px;margin-bottom:10px}.value{font-size:clamp(22px,4vw,36px);font-weight:700;font-variant-numeric:tabular-nums}.positive{color:var(--green)}.negative{color:#ff718f}
+canvas{width:100%;height:260px;display:block;margin-top:25px}.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}button{border:1px solid var(--cyan);background:#7df9ff12;color:var(--cyan);padding:11px 17px;border-radius:8px;font-weight:bold;cursor:pointer}button:hover{background:#7df9ff25}.stamp{color:var(--muted);font-size:12px;margin-left:auto}.foot{color:#777c9e;font-size:11px;line-height:1.7;margin-top:22px}
+@media(max-width:620px){body{padding:18px}.metrics{grid-template-columns:1fr 1fr}.metric:first-child{grid-column:1/-1}.panel{padding:17px}.stamp{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><span>SLAYXX049 // MARKET LAB</span><span>VICE CITY EDITION · 01</span></div>
+<h1>SENSEX<span style="color:var(--pink)">.</span></h1>
+<div class="sub">A LITTLE MARKET DATA EXPERIMENT</div>
+<div class="warning">DEMO MODE — SIMULATED VALUES, NOT LIVE BSE DATA</div>
+<section class="panel" aria-label="Simulated Sensex dashboard">
+<div class="metrics">
+<div class="metric"><small>SIMULATED INDEX</small><div class="value" id="price">80,000.00</div></div>
+<div class="metric"><small>CHANGE</small><div class="value positive" id="change">+0.00</div></div>
+<div class="metric"><small>CHANGE %</small><div class="value positive" id="percent">+0.00%</div></div>
+</div>
+<canvas id="chart" aria-label="Simulated index movement chart"></canvas>
+<div class="controls"><button id="toggle">PAUSE</button><button id="reset">RESET DEMO</button><span class="stamp">Last simulated tick: <span id="time">—</span></span></div>
+</section>
+<p class="foot">This page generates a fictional index path in your browser, updating once per second to demonstrate a live-dashboard interface. It does not connect to the BSE, Yahoo Finance, a broker, or any market-data provider. Values are not suitable for financial decisions.</p>
+</main>
+<script>
+(()=>{const base=80000;let price=base,history=Array(60).fill(base),running=true,timer=null;const $=id=>document.getElementById(id),canvas=$('chart'),ctx=canvas.getContext('2d');
+function fmt(n){return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function draw(){const w=canvas.clientWidth,h=260,dpr=window.devicePixelRatio||1;canvas.width=w*dpr;canvas.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);const min=Math.min(...history)-12,max=Math.max(...history)+12,span=max-min||1;ctx.strokeStyle='#ffffff18';ctx.lineWidth=1;for(let i=1;i<5;i++){let y=h*i/5;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}const up=history.at(-1)>=base;ctx.strokeStyle=up?'#65f2b5':'#ff718f';ctx.lineWidth=2.5;ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=10;ctx.beginPath();history.forEach((v,i)=>{let x=i/(history.length-1)*w,y=h-((v-min)/span)*(h-20)-10;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.shadowBlur=0}
+function tick(){price=Math.max(1000,price+(Math.random()-.49)*18);history.push(price);if(history.length>60)history.shift();let delta=price-base,pct=delta/base*100,cls=delta>=0?'positive':'negative';$('price').textContent=fmt(price);$('change').textContent=(delta>=0?'+':'')+fmt(delta);$('percent').textContent=(pct>=0?'+':'')+pct.toFixed(2)+'%';$('change').className='value '+cls;$('percent').className='value '+cls;$('time').textContent=new Date().toLocaleTimeString();draw()}
+function start(){clearInterval(timer);timer=setInterval(tick,1000)}$('toggle').onclick=()=>{running=!running;$('toggle').textContent=running?'PAUSE':'RESUME';running?start():clearInterval(timer)};$('reset').onclick=()=>{price=base;history=Array(60).fill(base);tick();if(running)start()};window.addEventListener('resize',draw);draw();tick();start()})();
+</script>
+</body>
+</html>
