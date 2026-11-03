@@ -60,12 +60,12 @@ Turning ideas into working projects.
   </a>
 </p>
 <p align="center">
-  <sub>The panel refreshes from an indicative Yahoo Finance snapshot fetched by GitHub Actions approximately every 5 minutes on weekdays during the scheduled window. The red/green depth ladder is a visual replay illustration with demo sizes, not real exchange orders or Level 2 data. Source data and GitHub image caching may add delays. For learning only; not a trading feed.</sub>
+  <sub>The profile card is a Yahoo Finance snapshot refreshed by GitHub Actions approximately every 5 minutes during its weekday schedule. The dashboard can request the latest available provider snapshot every 60 seconds after its optional Worker feed is configured. Provider delays and caching may still apply. The red/green depth ladder is simulated, not real exchange orders or Level 2 data. Educational display only.</sub>
 </p>
 <p align="center">
   <a href="sensex-dashboard.html"><img src="https://img.shields.io/badge/OPEN%20MARKET%20DASHBOARD-ff79c6?style=for-the-badge&labelColor=111329" alt="Open Sensex market snapshot dashboard"/></a>
 </p>
-<p align="center"><sub>The dashboard reads the published JSON snapshot and refreshes the page every minute. It is not a live tick feed; values may be delayed and are not for trading decisions.</sub></p>
+<p align="center"><sub><a href="docs/SENSEX-MINUTE-FEED.md">SET UP THE OPTIONAL 60-SECOND DATA FEED</a></sub></p>
 
 ## THE TOOLKIT
 
