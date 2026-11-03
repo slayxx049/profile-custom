@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="330" viewBox="0 0 1100 330" role="img" aria-labelledby="t d">
+<title id="t">Build workflow</title><desc id="d">An original diagram showing idea, design, build, test, and ship as a continuous development workflow.</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17122f"/><stop offset="1" stop-color="#101c35"/></linearGradient></defs>
+<rect width="1100" height="330" rx="22" fill="#0d1022"/>
+<text x="48" y="55" fill="#ff79c6" font-family="Arial,sans-serif" font-size="17" letter-spacing="5">THE BUILD LOOP</text>
+<g font-family="Arial,sans-serif" text-anchor="middle">
+<g fill="url(#g)" stroke="#7df9ff" stroke-width="2">
+<rect x="45" y="105" width="175" height="112" rx="15"/><rect x="265" y="105" width="175" height="112" rx="15"/><rect x="485" y="105" width="175" height="112" rx="15"/><rect x="705" y="105" width="175" height="112" rx="15"/><rect x="925" y="105" width="130" height="112" rx="15"/>
+</g>
+<g fill="#fff" font-size="24" font-weight="bold"><text x="132" y="155">IDEA</text><text x="352" y="155">DESIGN</text><text x="572" y="155">BUILD</text><text x="792" y="155">TEST</text><text x="990" y="155">SHIP</text></g>
+<g fill="#b9b5d0" font-size="13"><text x="132" y="183">Find a problem</text><text x="352" y="183">Plan the solution</text><text x="572" y="183">Write the code</text><text x="792" y="183">Fix &amp; improve</text><text x="990" y="183">Share the result</text></g>
+<g stroke="#ff79c6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M225 161h31m-9 -8 9 8 -9 8M445 161h31m-9 -8 9 8 -9 8M665 161h31m-9 -8 9 8 -9 8M885 161h31m-9 -8 9 8 -9 8"/></g>
+</g>
+<text x="550" y="278" text-anchor="middle" fill="#8d89aa" font-family="Arial,sans-serif" font-size="15" letter-spacing="2">LEARN → EXPERIMENT → ITERATE</text>
+</svg>
