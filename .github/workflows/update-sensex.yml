@@ -3,7 +3,7 @@ name: Update Sensex panel
 on:
   schedule:
     # Every 15 minutes on weekdays during the Indian market session (UTC).
-    - cron: "*/15 3-10 * * 1-5"
+    - cron: "*/5 3-10 * * 1-5"
   workflow_dispatch:
 
 permissions:
