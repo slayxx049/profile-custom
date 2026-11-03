@@ -16,7 +16,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Fetch indicative Sensex snapshot and render panel
+      - name: Fetch indicative Sensex snapshot and render terminal panel
         shell: bash
         run: |
           python - <<'PY'
@@ -27,10 +27,7 @@ jobs:
           from xml.sax.saxutils import escape
 
           url = "https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?range=1d&interval=1m"
-          request = urllib.request.Request(
-              url,
-              headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-          )
+          request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"})
           with urllib.request.urlopen(request, timeout=20) as response:
               payload = json.load(response)
 
@@ -50,26 +47,18 @@ jobs:
               if market_time_epoch else "Not supplied by source"
           )
           market_state = str(meta.get("marketState", "UNKNOWN")).replace("_", " ").title()
-
           timestamps = result.get("timestamp") or []
           quote = (result.get("indicators", {}).get("quote") or [{}])[0]
           closes = quote.get("close") or []
           history = [
               {"time": datetime.fromtimestamp(ts, ZoneInfo("Asia/Kolkata")).strftime("%H:%M"), "close": float(close)}
-              for ts, close in zip(timestamps, closes)
-              if close is not None
+              for ts, close in zip(timestamps, closes) if close is not None
           ]
-
+          updated = fetched.astimezone(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p IST")
           snapshot = {
-              "symbol": "^BSESN",
-              "price": float(price),
-              "previous_close": float(previous),
-              "change": float(change),
-              "change_percent": float(percent),
-              "market_state": market_state,
-              "market_time": market_time,
-              "fetched_at": fetched.astimezone(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M:%S %p IST"),
-              "history": history,
+              "symbol": "^BSESN", "price": float(price), "previous_close": float(previous),
+              "change": float(change), "change_percent": float(percent), "market_state": market_state,
+              "market_time": market_time, "fetched_at": updated, "history": history,
               "source": "Yahoo Finance chart endpoint; may be delayed"
           }
           with open("assets/sensex.json", "w", encoding="utf-8") as file:
@@ -81,18 +70,41 @@ jobs:
           sign = "+" if positive else ""
           price_text = f"{price:,.2f}"
           change_text = f"{sign}{change:,.2f} ({sign}{percent:.2f}%)"
-          updated = fetched.astimezone(ZoneInfo("Asia/Kolkata")).strftime("%d %b %Y · %I:%M %p IST")
 
-          svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="190" viewBox="0 0 900 190" role="img" aria-label="Indicative BSE Sensex {price_text}, change {change_text}">
-            <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10152d"/><stop offset="1" stop-color="#24132f"/></linearGradient></defs>
-            <rect x="1" y="1" width="898" height="188" rx="18" fill="url(#bg)" stroke="#7df9ff" stroke-opacity=".55"/>
-            <text x="32" y="43" fill="#7df9ff" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="3">MARKET WATCH / INDICATIVE</text>
-            <text x="32" y="105" fill="#f5f2ff" font-family="Arial,sans-serif" font-size="43" font-weight="700">SENSEX</text>
-            <text x="32" y="143" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="13">S&amp;P BSE SENSEX · ^BSESN · INR</text>
-            <text x="868" y="77" text-anchor="end" fill="#f5f2ff" font-family="Arial,sans-serif" font-size="37" font-weight="700">{escape(price_text)}</text>
-            <text x="868" y="111" text-anchor="end" fill="{accent}" font-family="Arial,sans-serif" font-size="20" font-weight="700">{escape(change_text)}</text>
-            <text x="868" y="145" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="12">Fetched {escape(updated)} · {escape(market_state)}</text>
-            <text x="32" y="174" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">YAHOO FINANCE SNAPSHOT · MAY BE DELAYED · NOT FOR TRADING</text>
+          # Illustrative ladder only: SENSEX is an index and has no directly executable order book.
+          ask_qty = [128, 94, 176, 112, 153]
+          bid_qty = [142, 118, 165, 97, 134]
+          rows = []
+          for i in range(5):
+              y = 210 + i * 25
+              ask_price = price * (1 + (i + 1) * 0.00035)
+              bid_price = price * (1 - (i + 1) * 0.00035)
+              ask_width = ask_qty[i] * 1.25
+              bid_width = bid_qty[i] * 1.25
+              rows.append(f'<rect x="478" y="{y-13}" width="{ask_width:.1f}" height="15" rx="3" fill="#ff718f" opacity=".18"/><text x="500" y="{y}" fill="#ff8da5" font-family="Arial,sans-serif" font-size="13">{ask_price:,.2f}</text><text x="858" y="{y}" text-anchor="end" fill="#c9c5df" font-family="Arial,sans-serif" font-size="13">{ask_qty[i]}</text>')
+              rows.append(f'<rect x="22" y="{y-13}" width="{bid_width:.1f}" height="15" rx="3" fill="#65f2b5" opacity=".18"/><text x="42" y="{y}" fill="#65f2b5" font-family="Arial,sans-serif" font-size="13">{bid_price:,.2f}</text><text x="420" y="{y}" text-anchor="end" fill="#c9c5df" font-family="Arial,sans-serif" font-size="13">{bid_qty[i]}</text>')
+
+          svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="900" height="370" viewBox="0 0 900 370" role="img" aria-label="Indicative Sensex {price_text}, {change_text}; simulated market depth illustration">
+            <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#1b1530"/></linearGradient></defs>
+            <rect x="1" y="1" width="898" height="368" rx="16" fill="url(#bg)" stroke="#7df9ff" stroke-opacity=".5"/>
+            <text x="24" y="30" fill="#7df9ff" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">SENSEX / MARKET TERMINAL</text>
+            <text x="876" y="30" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">INDICATIVE SNAPSHOT · {escape(market_state.upper())}</text>
+            <text x="24" y="83" fill="#f5f2ff" font-family="Arial,sans-serif" font-size="34" font-weight="700">{escape(price_text)}</text>
+            <text x="24" y="108" fill="{accent}" font-family="Arial,sans-serif" font-size="17" font-weight="700">{escape(change_text)}</text>
+            <text x="876" y="70" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">S&amp;P BSE SENSEX · ^BSESN · INR</text>
+            <text x="876" y="94" text-anchor="end" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">SOURCE: YAHOO FINANCE · {escape(updated)}</text>
+            <path d="M24 128H876" stroke="#34334e"/>
+            <text x="24" y="158" fill="#65f2b5" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1">BID SIDE</text>
+            <text x="24" y="181" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">ILLUSTRATIVE PRICE</text>
+            <text x="420" y="181" text-anchor="end" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">DEMO SIZE</text>
+            <text x="478" y="158" fill="#ff8da5" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1">ASK SIDE</text>
+            <text x="478" y="181" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">ILLUSTRATIVE PRICE</text>
+            <text x="858" y="181" text-anchor="end" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">DEMO SIZE</text>
+            <path d="M450 145V337" stroke="#34334e" stroke-dasharray="3 5"/>
+            {''.join(rows)}
+            <path d="M24 344H876" stroke="#34334e"/>
+            <text x="24" y="360" fill="#ffcf70" font-family="Arial,sans-serif" font-size="10" font-weight="700">SIMULATED DEPTH / REPLAY — NOT REAL EXCHANGE ORDERS OR LEVEL 2 DATA</text>
+            <text x="876" y="360" text-anchor="end" fill="#777c9e" font-family="Arial,sans-serif" font-size="10">AUTO SNAPSHOT · MAY BE DELAYED</text>
           </svg>'''
           with open("assets/sensex.svg", "w", encoding="utf-8") as file:
               file.write(svg + "\n")
