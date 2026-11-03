@@ -60,12 +60,12 @@ Turning ideas into working projects.
   </a>
 </p>
 <p align="center">
-  <sub>The embedded quote is an indicative Yahoo Finance snapshot fetched by GitHub Actions approximately every 5 minutes on weekdays during the scheduled window. Source data and GitHub image caching may add delays. For learning only; not a trading feed.</sub>
+  <sub>The panel refreshes from an indicative Yahoo Finance snapshot fetched by GitHub Actions approximately every 5 minutes on weekdays during the scheduled window. The red/green depth ladder is a visual replay illustration with demo sizes, not real exchange orders or Level 2 data. Source data and GitHub image caching may add delays. For learning only; not a trading feed.</sub>
 </p>
 <p align="center">
   <a href="sensex-dashboard.html"><img src="https://img.shields.io/badge/OPEN%20MARKET%20DASHBOARD-ff79c6?style=for-the-badge&labelColor=111329" alt="Open Sensex market snapshot dashboard"/></a>
 </p>
-<p align="center"><sub>The dashboard reads a published JSON snapshot from the scheduled workflow and refreshes the page every minute. It is not a live tick feed; values may be delayed and are not for trading decisions.</sub></p>
+<p align="center"><sub>The dashboard reads the published JSON snapshot and refreshes the page every minute. It is not a live tick feed; values may be delayed and are not for trading decisions.</sub></p>
 
 ## THE TOOLKIT
 
