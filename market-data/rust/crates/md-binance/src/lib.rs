@@ -169,10 +169,7 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
                         Some(Ok(Message::Ping(bytes))) => { socket.send(Message::Pong(bytes)).await?; }
                         Some(Ok(Message::Close(_))) | None => break,
                         Some(Ok(_)) => {}
-                        Some(Err(e)) => {
-                            let _ = ingress.gap(GapCause::Disconnect, now_ns(), Some(e.to_string()));
-                            break;
-                        }
+                        Some(Err(_e)) => { break; }
                     }
                 }
             }
