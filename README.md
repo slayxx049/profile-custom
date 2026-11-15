@@ -135,6 +135,19 @@ A Python-based job-discovery application that helps explore opportunities and co
   <img src="https://github-readme-activity-graph.vercel.app/graph?username=slayxx049&bg_color=0d1022&color=e9e7ff&line=7df9ff&point=ff79c6&area=true&hide_border=true" width="100%" alt="GitHub contribution activity graph"/>
 </p>
 
+
+## MARKET DATA SYSTEMS // READ-ONLY PIPELINE
+
+<p align="center">
+  <img src="assets/market-data-architecture.svg" width="100%" alt="Read-only market-data architecture: separate Binance and SENSEX adapters, raw capture, verification, normalization, and Parquet storage"/>
+</p>
+<p align="center"><sub>Architecture blueprint · Separate crypto and SENSEX providers · Capture-first data engineering · No trading or order execution</sub></p>
+<p align="center">
+  <a href="market-data/README.md">PROJECT OVERVIEW</a> ·
+  <a href="market-data/docs/architecture.md">ARCHITECTURE</a> ·
+  <a href="market-data/docs/provider-matrix.md">PROVIDER MATRIX</a>
+</p>
+
 ---
 
 <p align="center">
