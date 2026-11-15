@@ -85,6 +85,8 @@ async function getLiveSensex() {
     high: Number.isFinite(Number(meta.regularMarketDayHigh)) ? Number(meta.regularMarketDayHigh) : null,
     low: Number.isFinite(Number(meta.regularMarketDayLow)) ? Number(meta.regularMarketDayLow) : null,
     market_state: meta.marketState || "PROVIDER STATUS NOT SUPPLIED",
+    market_status: getMarketStatus(meta.marketState).status,
+    market_status_note: getMarketStatus(meta.marketState).note,
     market_time: marketTime,
     fetched_at: formatIndiaTime(Math.floor(Date.now() / 1000)),
     history: history,
@@ -92,6 +94,31 @@ async function getLiveSensex() {
     feed_type: "YAHOO FINANCE · DELAYED/UNOFFICIAL",
     note: "Quote timing may be delayed. This unofficial endpoint has no uptime guarantee and is not an exchange-certified or broker-grade feed."
   };
+}
+
+
+function getMarketStatus(providerState) {
+  const state = String(providerState || "").toUpperCase();
+  if (state === "REGULAR") return { status: "MARKET OPEN", note: "Status supplied by Yahoo Finance" };
+  if (state === "PRE") return { status: "PRE-MARKET", note: "Status supplied by Yahoo Finance" };
+  if (state === "POST") return { status: "AFTER-HOURS", note: "Status supplied by Yahoo Finance" };
+  if (state === "CLOSED") return { status: "MARKET CLOSED", note: "Status supplied by Yahoo Finance" };
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23"
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const minutes = Number(values.hour) * 60 + Number(values.minute);
+  const weekday = !["Sat", "Sun"].includes(values.weekday);
+
+  if (!weekday || minutes < 9 * 60 + 15 || minutes >= 15 * 60 + 30) {
+    return { status: "MARKET CLOSED", note: "Estimated from regular BSE trading hours; exchange holidays are not verified" };
+  }
+  return { status: "MARKET HOURS · STATUS UNCONFIRMED", note: "Trading hours estimate; live exchange status was not supplied by Yahoo Finance" };
 }
 
 function escapeXml(value) {
@@ -109,20 +136,23 @@ function svgCard(data) {
   const percent = sign + data.change_percent.toFixed(2) + "%";
   const timestamp = escapeXml(data.market_time);
   const fetched = escapeXml(data.fetched_at);
+  const status = escapeXml(data.market_status || "MARKET STATUS UNAVAILABLE");
   const previous = data.previous_close.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="SENSEX ${price}, ${change} points, ${percent}">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="290" viewBox="0 0 900 290" role="img" aria-label="SENSEX ${price}, ${change} points, ${percent}, ${status}">
   <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#1b1530"/></linearGradient></defs>
-  <rect x="1" y="1" width="898" height="258" rx="16" fill="url(#bg)" stroke="#7df9ff" stroke-opacity=".55"/>
+  <rect x="1" y="1" width="898" height="288" rx="16" fill="url(#bg)" stroke="#7df9ff" stroke-opacity=".55"/>
   <text x="28" y="36" fill="#7df9ff" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">SENSEX / MARKET WATCH</text>
   <text x="872" y="36" text-anchor="end" fill="#65f2b5" font-family="Arial,sans-serif" font-size="11" font-weight="700">YAHOO · UNOFFICIAL</text>
   <text x="28" y="120" fill="#f5f2ff" font-family="Arial,sans-serif" font-size="58" font-weight="700">${escapeXml(price)}</text>
   <text x="30" y="158" fill="${accent}" font-family="Arial,sans-serif" font-size="22" font-weight="700">${escapeXml(change)} (${escapeXml(percent)})</text>
   <text x="872" y="103" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="12">S&amp;P BSE SENSEX · ^BSESN</text>
   <text x="872" y="127" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">PREVIOUS CLOSE  ${escapeXml(previous)}</text>
-  <path d="M28 185H872" stroke="#34334e"/>
-  <text x="28" y="216" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">MARKET TIME: ${timestamp}</text>
-  <text x="872" y="216" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">FETCHED: ${fetched}</text>
-  <text x="28" y="242" fill="#ffcf70" font-family="Arial,sans-serif" font-size="10">QUOTE MAY BE DELAYED · UNOFFICIAL SOURCE · NOT A TRADING FEED</text>
+  <path d="M28 180H872" stroke="#34334e"/>
+  <text x="28" y="207" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">MARKET STATUS:</text>
+  <text x="160" y="207" fill="#ffcf70" font-family="Arial,sans-serif" font-size="12" font-weight="700">${status}</text>
+  <text x="28" y="237" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">LAST TRADED: ${timestamp}</text>
+  <text x="872" y="237" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">FETCHED: ${fetched}</text>
+  <text x="28" y="270" fill="#ffcf70" font-family="Arial,sans-serif" font-size="10">QUOTE MAY BE DELAYED · UNOFFICIAL SOURCE · NOT A TRADING FEED</text>
   </svg>`;
   return new Response(svg, {
     headers: {
