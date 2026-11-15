@@ -111,16 +111,57 @@ async function getLiveSensex() {
   };
 }
 
+
+function escapeXml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;"
+  })[char]);
+}
+
+function svgCard(data) {
+  const positive = data.change >= 0;
+  const accent = positive ? "#65f2b5" : "#ff718f";
+  const sign = positive ? "+" : "";
+  const price = data.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const change = sign + data.change.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const percent = sign + data.change_percent.toFixed(2) + "%";
+  const timestamp = escapeXml(data.market_time);
+  const fetched = escapeXml(data.fetched_at);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="BSE SENSEX ${price}, ${change} points, ${percent}">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#1b1530"/></linearGradient></defs>
+  <rect x="1" y="1" width="898" height="258" rx="16" fill="url(#bg)" stroke="#7df9ff" stroke-opacity=".55"/>
+  <text x="28" y="36" fill="#7df9ff" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">SENSEX / LIVE MARKET WATCH</text>
+  <text x="872" y="36" text-anchor="end" fill="#65f2b5" font-family="Arial,sans-serif" font-size="11" font-weight="700">● BSE QUOTE</text>
+  <text x="28" y="120" fill="#f5f2ff" font-family="Arial,sans-serif" font-size="58" font-weight="700">${escapeXml(price)}</text>
+  <text x="30" y="158" fill="${accent}" font-family="Arial,sans-serif" font-size="22" font-weight="700">${escapeXml(change)} (${escapeXml(percent)})</text>
+  <text x="872" y="103" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="12">S&amp;P BSE SENSEX · ^BSESN</text>
+  <text x="872" y="127" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">PREVIOUS CLOSE  ${escapeXml(data.previous_close.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</text>
+  <path d="M28 185H872" stroke="#34334e"/>
+  <text x="28" y="216" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">BSE TIMESTAMP: ${timestamp}</text>
+  <text x="872" y="216" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">FETCHED: ${fetched}</text>
+  <text x="28" y="242" fill="#ffcf70" font-family="Arial,sans-serif" font-size="10">PROVIDER TIMING MAY VARY · EDUCATIONAL DISPLAY · NOT A TRADING FEED</text>
+  </svg>`;
+  return new Response(svg, {
+    headers: {
+      "Content-Type": "image/svg+xml; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-store"
+    }
+  });
+}
+
 export default {
   async fetch(request) {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return json({ ok: true });
     if (request.method !== "GET") return json({ error: "Method not allowed" }, 405);
-    if (url.pathname !== "/" && url.pathname !== "/sensex") {
+    if (url.pathname !== "/" && url.pathname !== "/sensex" && url.pathname !== "/sensex.svg") {
       return json({ error: "Not found" }, 404);
     }
     try {
-      return json(await getLiveSensex());
+      const data = await getLiveSensex();
+      if (url.pathname === "/sensex.svg") return svgCard(data);
+      return json(data);
     } catch (error) {
       return json({
         error: "Unable to retrieve the latest BSE SENSEX quote",
