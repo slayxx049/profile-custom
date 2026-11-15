@@ -1,15 +1,13 @@
 /**
- * SENSEX live-quote proxy
+ * SENSEX quote proxy
  * Read-only educational display. No trading or order execution.
- * Upstream endpoint documented by Praglitch/market-data-feed (MIT):
- * https://github.com/Praglitch/market-data-feed
- * BSE India live SENSEX quote endpoint:
- * https://api.bseindia.com/RealTimeBseIndiaAPI/api/GetSensexData/w
+ * Data source: Yahoo Finance chart endpoint for ^BSESN.
  *
- * BSE controls availability, update frequency and any redistribution terms.
- * This is not an exchange-certified or broker-grade feed.
+ * Yahoo's chart endpoint is unofficial and undocumented. Data may be delayed,
+ * rate-limited, unavailable, or changed without notice. Not an exchange-certified
+ * or broker-grade feed; check provider terms before redistribution.
  */
-const UPSTREAM = "https://api.bseindia.com/RealTimeBseIndiaAPI/api/GetSensexData/w";
+const UPSTREAM = "https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?range=1d&interval=1m&includePrePost=false";
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -24,93 +22,77 @@ function json(data, status = 200) {
   });
 }
 
-function number(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const parsed = Number(String(value).replace(/,/g, "").trim());
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function normalizeRow(payload) {
-  if (Array.isArray(payload)) return payload[0] || null;
-  if (!payload || typeof payload !== "object") return null;
-  for (const key of ["Data", "data", "Table", "Table1", "Result", "result"]) {
-    if (Array.isArray(payload[key])) return payload[key][0] || null;
-  }
-  return payload;
+function formatIndiaTime(unixSeconds) {
+  if (!unixSeconds) return "Not supplied by provider";
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: true
+  }).format(new Date(unixSeconds * 1000)) + " IST";
 }
 
 async function getLiveSensex() {
   const upstream = await fetch(UPSTREAM, {
     method: "GET",
     headers: {
-      "Accept": "application/json, text/plain, */*",
-      "Accept-Language": "en-IN,en-US;q=0.9,en;q=0.8",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      "Referer": "https://www.bseindia.com/",
-      "Origin": "https://www.bseindia.com"
+      "Accept": "application/json",
+      "Accept-Language": "en-IN,en;q=0.9",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
     },
-    redirect: "follow",
-    cache: "no-store"
+    redirect: "follow"
   });
 
   if (!upstream.ok) {
-    throw new Error(`BSE returned HTTP ${upstream.status}`);
+    throw new Error("Yahoo Finance returned HTTP " + upstream.status);
   }
 
   const payload = await upstream.json();
-  const row = normalizeRow(payload);
-  if (!row) throw new Error("BSE returned an empty SENSEX quote");
+  const chart = payload?.chart?.result?.[0];
+  if (payload?.chart?.error) {
+    throw new Error(payload.chart.error.description || "Yahoo Finance chart error");
+  }
+  if (!chart?.meta) throw new Error("Yahoo Finance returned no SENSEX chart metadata");
 
-  const fields = Object.fromEntries(
-    Object.entries(row).map(([key, value]) => [
-      key.toLowerCase().replace(/[^a-z0-9]/g, ""),
-      value
-    ])
-  );
-  const pick = (...keys) => {
-    for (const key of keys) {
-      if (fields[key] !== undefined && fields[key] !== null && fields[key] !== "") {
-        return fields[key];
-      }
-    }
-    return null;
-  };
-
-  const price = number(pick("ltp", "lastprice", "lasttradedprice"));
-  const previous = number(pick("prevclose", "previousclose", "prevclosing"));
-  if (price === null || previous === null || previous === 0) {
-    throw new Error("BSE response did not contain usable LTP and previous-close values");
+  const meta = chart.meta;
+  const price = Number(meta.regularMarketPrice);
+  const previous = Number(meta.chartPreviousClose ?? meta.previousClose);
+  if (!Number.isFinite(price) || !Number.isFinite(previous) || previous <= 0) {
+    throw new Error("Yahoo Finance response did not contain a usable price and previous close");
   }
 
-  const change = number(pick("chg", "change")) ?? (price - previous);
-  const changePercent = number(pick("perchg", "changepercent", "percentchange"))
-    ?? ((change / previous) * 100);
-  const fetchedAt = new Intl.DateTimeFormat("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit", month: "short", year: "numeric",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-    hour12: true
-  }).format(new Date()) + " IST";
+  const change = price - previous;
+  const changePercent = (change / previous) * 100;
+  const quote = chart.indicators?.quote?.[0] || {};
+  const timestamps = chart.timestamp || [];
+  const closes = quote.close || [];
+  const history = timestamps
+    .map((time, index) => ({
+      time: time,
+      close: closes[index]
+    }))
+    .filter((point) => Number.isFinite(point.close))
+    .slice(-120);
 
+  const marketTime = formatIndiaTime(meta.regularMarketTime);
   return {
     symbol: "^BSESN",
-    price,
+    price: price,
     previous_close: previous,
-    change,
+    change: change,
     change_percent: changePercent,
-    open: number(pick("iopen", "open")),
-    high: number(pick("high", "dayhigh")),
-    low: number(pick("low", "daylow")),
-    market_state: "BSE LIVE QUOTE",
-    market_time: String(pick("dttm", "datetime", "markettime") ?? "Not supplied by BSE"),
-    fetched_at: fetchedAt,
-    history: [],
-    source: "BSE India RealTimeBseIndiaAPI",
-    feed_type: "BSE LIVE FEED",
-    note: "Provider timing and availability are not guaranteed; not an exchange-certified or broker-grade feed."
+    open: Number.isFinite(Number(meta.regularMarketOpen)) ? Number(meta.regularMarketOpen) : null,
+    high: Number.isFinite(Number(meta.regularMarketDayHigh)) ? Number(meta.regularMarketDayHigh) : null,
+    low: Number.isFinite(Number(meta.regularMarketDayLow)) ? Number(meta.regularMarketDayLow) : null,
+    market_state: meta.marketState || "PROVIDER STATUS NOT SUPPLIED",
+    market_time: marketTime,
+    fetched_at: formatIndiaTime(Math.floor(Date.now() / 1000)),
+    history: history,
+    source: "Yahoo Finance chart endpoint (unofficial)",
+    feed_type: "YAHOO FINANCE · DELAYED/UNOFFICIAL",
+    note: "Quote timing may be delayed. This unofficial endpoint has no uptime guarantee and is not an exchange-certified or broker-grade feed."
   };
 }
-
 
 function escapeXml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -127,19 +109,20 @@ function svgCard(data) {
   const percent = sign + data.change_percent.toFixed(2) + "%";
   const timestamp = escapeXml(data.market_time);
   const fetched = escapeXml(data.fetched_at);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="BSE SENSEX ${price}, ${change} points, ${percent}">
+  const previous = data.previous_close.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260" role="img" aria-label="SENSEX ${price}, ${change} points, ${percent}">
   <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#1b1530"/></linearGradient></defs>
   <rect x="1" y="1" width="898" height="258" rx="16" fill="url(#bg)" stroke="#7df9ff" stroke-opacity=".55"/>
-  <text x="28" y="36" fill="#7df9ff" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">SENSEX / LIVE MARKET WATCH</text>
-  <text x="872" y="36" text-anchor="end" fill="#65f2b5" font-family="Arial,sans-serif" font-size="11" font-weight="700">● BSE QUOTE</text>
+  <text x="28" y="36" fill="#7df9ff" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">SENSEX / MARKET WATCH</text>
+  <text x="872" y="36" text-anchor="end" fill="#65f2b5" font-family="Arial,sans-serif" font-size="11" font-weight="700">YAHOO · UNOFFICIAL</text>
   <text x="28" y="120" fill="#f5f2ff" font-family="Arial,sans-serif" font-size="58" font-weight="700">${escapeXml(price)}</text>
   <text x="30" y="158" fill="${accent}" font-family="Arial,sans-serif" font-size="22" font-weight="700">${escapeXml(change)} (${escapeXml(percent)})</text>
   <text x="872" y="103" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="12">S&amp;P BSE SENSEX · ^BSESN</text>
-  <text x="872" y="127" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">PREVIOUS CLOSE  ${escapeXml(data.previous_close.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</text>
+  <text x="872" y="127" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">PREVIOUS CLOSE  ${escapeXml(previous)}</text>
   <path d="M28 185H872" stroke="#34334e"/>
-  <text x="28" y="216" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">BSE TIMESTAMP: ${timestamp}</text>
+  <text x="28" y="216" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">MARKET TIME: ${timestamp}</text>
   <text x="872" y="216" text-anchor="end" fill="#aaa6c8" font-family="Arial,sans-serif" font-size="11">FETCHED: ${fetched}</text>
-  <text x="28" y="242" fill="#ffcf70" font-family="Arial,sans-serif" font-size="10">PROVIDER TIMING MAY VARY · EDUCATIONAL DISPLAY · NOT A TRADING FEED</text>
+  <text x="28" y="242" fill="#ffcf70" font-family="Arial,sans-serif" font-size="10">QUOTE MAY BE DELAYED · UNOFFICIAL SOURCE · NOT A TRADING FEED</text>
   </svg>`;
   return new Response(svg, {
     headers: {
@@ -164,7 +147,7 @@ export default {
       return json(data);
     } catch (error) {
       return json({
-        error: "Unable to retrieve the latest BSE SENSEX quote",
+        error: "Unable to retrieve the latest Yahoo Finance SENSEX quote",
         detail: String(error?.message || error),
         fetched_at: new Date().toISOString()
       }, 502);
