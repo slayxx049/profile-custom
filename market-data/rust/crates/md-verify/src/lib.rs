@@ -70,7 +70,7 @@ pub fn verify_capture(capture: &ReadCapture) -> VerificationReport {
 impl VerificationReport {
     #[must_use]
     pub fn is_clean(&self) -> bool {
-        self.complete && self.count_matches && self.sequence_holes.is_empty() && self.truncated_bytes == 0 && self.book_errors.is_empty()
+        self.complete && self.count_matches && self.gaps == 0 && self.sequence_holes.is_empty() && self.truncated_bytes == 0 && self.book_errors.is_empty()
     }
 }
 
