@@ -51,8 +51,8 @@
   <a href="sensex-dashboard.html"><img src="https://img.shields.io/badge/OPEN%20MARKET%20TERMINAL-ff79c6?style=for-the-badge&labelColor=111329" alt="Open market terminal"/></a>
   <a href="https://finance.yahoo.com/quote/%5EBSESN/"><img src="https://img.shields.io/badge/LIVE%20QUOTE-7df9ff?style=for-the-badge&labelColor=111329" alt="View Sensex quote"/></a>
 </p>
-<p align="center"><sub>Vice City-styled market panel · Snapshot refreshed by the repository's scheduled workflow (approximately every 5 minutes during its weekday schedule). Provider caching and delays may apply. The bid/ask depth illustration is simulated, not real exchange order-book data. For the latest provider quote, use the live-quote link.</sub></p>
-<p align="center"><sub><a href="docs/SENSEX-MINUTE-FEED.md">OPTIONAL 60-SECOND FEED — SETUP NOTES</a></sub></p>
+<p align="center"><sub>Vice City-styled market panel · Optional BSE SENSEX live-quote feed through a Cloudflare Worker (60-second polling while the dashboard is open). The Worker must be deployed and configured; otherwise the panel uses the scheduled repository snapshot. Provider timing and availability are not guaranteed. The bid/ask depth illustration is simulated, not real exchange order-book data.</sub></p>
+<p align="center"><sub><a href="docs/SENSEX-MINUTE-FEED.md">BSE LIVE-FEED SETUP &amp; DATA LIMITATIONS</a></sub></p>
 
 ## GITHUB STATS // PLAYER STATUS
 
