@@ -10,7 +10,7 @@ use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use futures_util::{SinkExt, StreamExt};
-use md_core::{CaptureRecord, GapCause, GapInfo, RecordKind};
+use md_core::{CaptureRecord, GapCause, GapInfo};
 use md_recorder::Ingress;
 use md_storage::{CaptureHeader, RawWriter, WriterOptions};
 use serde_json::Value;
@@ -121,7 +121,7 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
         first_connection = false;
 
         match fetch_depth_snapshot(&symbol).await {
-            Ok(snapshot) => ingress.accept_snapshot(snapshot, now_ns()).map_err(AdapterError::Writer)?,
+            Ok(snapshot) => ingress.accept_snapshot_on_stream("rest:depth-snapshot", snapshot, now_ns()).map_err(AdapterError::Writer)?,
             Err(e) => {
                 let _ = ingress.gap(GapCause::SnapshotUnavailable, now_ns(), Some(e.to_string()));
             }
@@ -142,10 +142,7 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
                             let ts = exchange_timestamp(&payload);
                             let local = now_ns();
                             // Keep the combined-stream envelope exactly as received.
-                            let record = CaptureRecord::venue_payload("binance", &symbol, stream, ts, local, 0, payload);
-                            // Re-stamp through ingress so sequence assignment is centralized.
-                            let _ = record;
-                            let outcome = ingress.accept(text.as_bytes().to_vec(), ts, local).map_err(AdapterError::Writer)?;
+                            let outcome = ingress.accept_stream(stream, payload, ts, local).map_err(AdapterError::Writer)?;
                             if matches!(outcome, md_recorder::IngressOutcome::Dropped { .. }) {
                                 // The missing sequence is intentionally visible to the verifier.
                             }
@@ -153,7 +150,8 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
                         Some(Ok(Message::Binary(bytes))) => {
                             let payload = bytes.to_vec();
                             let ts = exchange_timestamp(&payload);
-                            ingress.accept(payload, ts, now_ns()).map_err(AdapterError::Writer)?;
+                            let stream = stream_name(&payload, &symbol);
+                            ingress.accept_stream(stream, payload, ts, now_ns()).map_err(AdapterError::Writer)?;
                         }
                         Some(Ok(Message::Ping(bytes))) => { socket.send(Message::Pong(bytes)).await?; }
                         Some(Ok(Message::Close(_))) | None => break,
