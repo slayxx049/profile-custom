@@ -1,6 +1,7 @@
 //! Offline integrity checks for raw capture files.
 
 use md_core::RecordKind;
+use md_book::OrderBook;
 use md_storage::{read_file, ReadCapture, StorageError};
 use std::path::Path;
 
@@ -12,6 +13,7 @@ pub struct VerificationReport {
     pub complete: bool,
     pub count_matches: bool,
     pub truncated_bytes: u64,
+    pub book_errors: Vec<String>,
 }
 
 pub fn verify(path: &Path) -> Result<VerificationReport, StorageError> {
@@ -28,8 +30,33 @@ pub fn verify_capture(capture: &ReadCapture) -> VerificationReport {
         ..VerificationReport::default()
     };
     let mut previous = None;
+    let mut book = OrderBook::default();
     for record in &capture.records {
-        if record.kind == RecordKind::Gap { report.gaps += 1; }
+        if record.kind == RecordKind::Gap {
+            report.gaps += 1;
+            book = OrderBook::default();
+        }
+        if record.kind == RecordKind::VenueSnapshot {
+            if let Err(e) = book.apply_snapshot(&record.payload) {
+                report.book_errors.push(format!("snapshot seq {}: {e}", record.ingest_seq));
+                book = OrderBook::default();
+            }
+        } else if record.kind == RecordKind::VenuePayload && record.stream.contains("@depth") {
+            let parsed: Result<serde_json::Value, _> = serde_json::from_slice(&record.payload);
+            match parsed {
+                Ok(value) => {
+                    let data = value.get("data").unwrap_or(&value);
+                    match serde_json::to_vec(data) {
+                        Ok(raw) => if let Err(e) = book.apply_delta(&raw) {
+                            report.book_errors.push(format!("depth seq {}: {e}", record.ingest_seq));
+                            book = OrderBook::default();
+                        },
+                        Err(e) => report.book_errors.push(format!("depth seq {}: {e}", record.ingest_seq)),
+                    }
+                }
+                Err(e) => report.book_errors.push(format!("depth seq {}: {e}", record.ingest_seq)),
+            }
+        }
         if let Some(prev) = previous {
             if record.ingest_seq != prev + 1 {
                 report.sequence_holes.push((prev, record.ingest_seq));
@@ -43,7 +70,7 @@ pub fn verify_capture(capture: &ReadCapture) -> VerificationReport {
 impl VerificationReport {
     #[must_use]
     pub fn is_clean(&self) -> bool {
-        self.complete && self.count_matches && self.sequence_holes.is_empty() && self.truncated_bytes == 0
+        self.complete && self.count_matches && self.sequence_holes.is_empty() && self.truncated_bytes == 0 && self.book_errors.is_empty()
     }
 }
 
