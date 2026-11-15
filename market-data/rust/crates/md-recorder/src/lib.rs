@@ -54,10 +54,14 @@ impl Ingress {
 
     /// Enqueue a REST snapshot as a distinct raw frame kind.
     pub fn accept_snapshot(&mut self, payload: Vec<u8>, local_recv_ts_ns: i64) -> Result<u64, String> {
+        self.accept_snapshot_on_stream(self.stream.clone(), payload, local_recv_ts_ns)
+    }
+
+    pub fn accept_snapshot_on_stream(&mut self, stream: impl Into<String>, payload: Vec<u8>, local_recv_ts_ns: i64) -> Result<u64, String> {
         let seq = self.next_seq;
         self.next_seq = self.next_seq.checked_add(1).ok_or_else(|| "ingest sequence exhausted".to_owned())?;
         let record = CaptureRecord::venue_snapshot(
-            self.provider.clone(), self.symbol.clone(), self.stream.clone(),
+            self.provider.clone(), self.symbol.clone(), stream,
             local_recv_ts_ns, seq, payload
         );
         self.tx.send(record).map_err(|_| "capture writer disconnected".to_owned())?;
