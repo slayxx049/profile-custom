@@ -10,7 +10,7 @@ use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use futures_util::{SinkExt, StreamExt};
-use md_core::{CaptureRecord, GapCause, GapInfo};
+use md_core::{CaptureRecord, GapCause};
 use md_recorder::Ingress;
 use md_storage::{CaptureHeader, RawWriter, WriterOptions};
 use serde_json::Value;
@@ -127,6 +127,9 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
             }
         }
 
+        let mut snapshot_interval = tokio::time::interval(Duration::from_secs(60 * 60));
+        snapshot_interval.tick().await;
+        let reconnect_at = tokio::time::Instant::now() + Duration::from_secs(23 * 60 * 60 + 50 * 60);
         loop {
             tokio::select! {
                 _ = tokio::signal::ctrl_c() => break 'capture,
@@ -134,6 +137,16 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
                     if let Some(d) = deadline { tokio::time::sleep_until(d).await; }
                     else { std::future::pending::<()>().await; }
                 } => break 'capture,
+                _ = tokio::time::sleep_until(reconnect_at) => {
+                    let _ = ingress.gap(GapCause::Disconnect, now_ns(), Some("scheduled reconnect before venue stream lifetime cap".into()));
+                    break;
+                },
+                _ = snapshot_interval.tick() => {
+                    match fetch_depth_snapshot(&symbol).await {
+                        Ok(snapshot) => ingress.accept_snapshot_on_stream("rest:depth-snapshot", snapshot, now_ns()).map_err(AdapterError::Writer)?,
+                        Err(e) => { let _ = ingress.gap(GapCause::SnapshotUnavailable, now_ns(), Some(e.to_string())); }
+                    }
+                },
                 next = socket.next() => {
                     match next {
                         Some(Ok(Message::Text(text))) => {
