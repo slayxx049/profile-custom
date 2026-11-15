@@ -84,22 +84,37 @@ jobs:
           if not files:
               raise SystemExit("No Parquet files were produced")
 
+          expected = {
+              "trades.parquet": ("venue_payload", "@trade"),
+              "book_deltas.parquet": ("venue_payload", "@depth"),
+              "book_snapshots.parquet": ("venue_snapshot", "rest:depth-snapshot"),
+          }
+          by_name = {path.name: path for path in files}
+          missing_files = sorted(set(expected).difference(by_name))
+          if missing_files:
+              raise SystemExit(f"Missing required event datasets: {missing_files}")
+
           total_rows = 0
-          for path in files:
+          for name, (kind, stream_fragment) in expected.items():
+              path = by_name[name]
               table = pq.read_table(path)
               rows = table.num_rows
               if rows == 0:
-                  raise SystemExit(f"Empty Parquet dataset: {path}")
-              required = {"ingest_seq", "local_recv_ts_ns", "provider", "symbol", "payload"}
+                  raise SystemExit(f"Empty required dataset: {path}")
+              required = {"ingest_seq", "local_recv_ts_ns", "provider", "symbol", "stream", "record_kind", "payload"}
               missing = required.difference(table.column_names)
               if missing:
                   raise SystemExit(f"{path}: missing columns {sorted(missing)}")
+              kinds = set(table.column("record_kind").to_pylist())
+              streams = table.column("stream").to_pylist()
+              if kind not in kinds or not any(stream_fragment in stream for stream in streams):
+                  raise SystemExit(f"{path}: rows do not match expected event family {kind}/{stream_fragment}")
+              if any(not payload for payload in table.column("payload").to_pylist()):
+                  raise SystemExit(f"{path}: found an empty raw payload")
               total_rows += rows
-              print(f"READ OK: {path} | rows={rows} | columns={len(table.column_names)}")
+              print(f"READ OK: {path} | rows={rows} | event={kind}")
 
-          if total_rows == 0:
-              raise SystemExit("Parquet read-back returned zero rows")
-          print(f"PARQUET READ-BACK PASSED: files={len(files)} rows={total_rows}")
+          print(f"PARQUET READ-BACK PASSED: required_datasets={len(expected)} rows={total_rows}")
           PY
 
       - name: Save runtime evidence
