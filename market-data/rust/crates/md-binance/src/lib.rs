@@ -16,8 +16,8 @@ use md_storage::{CaptureHeader, RawWriter, WriterOptions};
 use serde_json::Value;
 use tokio_tungstenite::tungstenite::Message;
 
-const WS_BASE: &str = "wss://stream.binance.com:9443";
-const REST_BASE: &str = "https://api.binance.com";
+const WS_BASE: &str = "wss://data-stream.binance.vision";
+const REST_BASE: &str = "https://data-api.binance.vision";
 const QUEUE_CAPACITY: usize = 8192;
 
 #[derive(Debug)]
