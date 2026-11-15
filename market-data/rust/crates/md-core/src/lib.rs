@@ -77,6 +77,29 @@ impl CaptureRecord {
     }
 
     #[must_use]
+    #[must_use]
+    pub fn venue_snapshot(
+        provider: impl Into<String>,
+        symbol: impl Into<String>,
+        stream: impl Into<String>,
+        local_recv_ts_ns: i64,
+        ingest_seq: u64,
+        payload: Vec<u8>,
+    ) -> Self {
+        Self {
+            schema_version: EVENT_SCHEMA_VERSION,
+            provider: provider.into(),
+            symbol: symbol.into(),
+            stream: stream.into(),
+            kind: RecordKind::VenueSnapshot,
+            exchange_ts_ns: None,
+            local_recv_ts_ns,
+            ingest_seq,
+            payload,
+            gap: None,
+        }
+    }
+
     pub fn gap(
         provider: impl Into<String>,
         symbol: impl Into<String>,
