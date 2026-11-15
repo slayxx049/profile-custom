@@ -1,19 +1,15 @@
 /**
- * SENSEX minute-feed proxy
- * Read-only educational data endpoint. It does not place orders.
- * Upstream: Yahoo Finance chart endpoint; availability and delay are provider-controlled.
+ * SENSEX live-quote proxy
+ * Read-only educational display. No trading or order execution.
+ * Upstream endpoint documented by Praglitch/market-data-feed (MIT):
+ * https://github.com/Praglitch/market-data-feed
+ * BSE India live SENSEX quote endpoint:
+ * https://api.bseindia.com/RealTimeBseIndiaAPI/api/GetSensexData/w
+ *
+ * BSE controls availability, update frequency and any redistribution terms.
+ * This is not an exchange-certified or broker-grade feed.
  */
-const SYMBOL = "%5EBSESN";
-const UPSTREAM = `https://query1.finance.yahoo.com/v8/finance/chart/${SYMBOL}?range=1d&interval=1m`;
-
-function ist(epochSeconds) {
-  return new Intl.DateTimeFormat("en-IN", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit", month: "short", year: "numeric",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-    hour12: true
-  }).format(new Date(epochSeconds * 1000)) + " IST";
-}
+const UPSTREAM = "https://api.bseindia.com/RealTimeBseIndiaAPI/api/GetSensexData/w";
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -28,44 +24,90 @@ function json(data, status = 200) {
   });
 }
 
-async function getQuote() {
-  const upstream = await fetch(UPSTREAM, {
-    headers: { "Accept": "application/json" },
-    cf: { cacheTtl: 0, cacheEverything: false }
-  });
-  if (!upstream.ok) throw new Error(`Upstream returned HTTP ${upstream.status}`);
-  const payload = await upstream.json();
-  const result = payload?.chart?.result?.[0];
-  if (!result) throw new Error(payload?.chart?.error?.description || "No quote returned");
-  const meta = result.meta || {};
-  const price = Number(meta.regularMarketPrice);
-  const previous = Number(meta.previousClose ?? meta.chartPreviousClose);
-  if (!Number.isFinite(price) || !Number.isFinite(previous) || previous === 0) {
-    throw new Error("The provider did not return a usable index quote");
+function number(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(String(value).replace(/,/g, "").trim());
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeRow(payload) {
+  if (Array.isArray(payload)) return payload[0] || null;
+  if (!payload || typeof payload !== "object") return null;
+  for (const key of ["Data", "data", "Table", "Table1", "Result", "result"]) {
+    if (Array.isArray(payload[key])) return payload[key][0] || null;
   }
-  const timestamps = result.timestamp || [];
-  const closes = result.indicators?.quote?.[0]?.close || [];
-  const history = timestamps.flatMap((ts, i) => {
-    const close = Number(closes[i]);
-    return Number.isFinite(close) ? [{
-      time: new Intl.DateTimeFormat("en-IN", {
-        timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: false
-      }).format(new Date(ts * 1000)),
-      close
-    }] : [];
+  return payload;
+}
+
+async function getLiveSensex() {
+  const upstream = await fetch(UPSTREAM, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Language": "en-IN,en-US;q=0.9,en;q=0.8",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "Referer": "https://www.bseindia.com/",
+      "Origin": "https://www.bseindia.com"
+    },
+    redirect: "follow",
+    cache: "no-store"
   });
-  const fetched = new Date();
+
+  if (!upstream.ok) {
+    throw new Error(`BSE returned HTTP ${upstream.status}`);
+  }
+
+  const payload = await upstream.json();
+  const row = normalizeRow(payload);
+  if (!row) throw new Error("BSE returned an empty SENSEX quote");
+
+  const fields = Object.fromEntries(
+    Object.entries(row).map(([key, value]) => [
+      key.toLowerCase().replace(/[^a-z0-9]/g, ""),
+      value
+    ])
+  );
+  const pick = (...keys) => {
+    for (const key of keys) {
+      if (fields[key] !== undefined && fields[key] !== null && fields[key] !== "") {
+        return fields[key];
+      }
+    }
+    return null;
+  };
+
+  const price = number(pick("ltp", "lastprice", "lasttradedprice"));
+  const previous = number(pick("prevclose", "previousclose", "prevclosing"));
+  if (price === null || previous === null || previous === 0) {
+    throw new Error("BSE response did not contain usable LTP and previous-close values");
+  }
+
+  const change = number(pick("chg", "change")) ?? (price - previous);
+  const changePercent = number(pick("perchg", "changepercent", "percentchange"))
+    ?? ((change / previous) * 100);
+  const fetchedAt = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: true
+  }).format(new Date()) + " IST";
+
   return {
     symbol: "^BSESN",
     price,
     previous_close: previous,
-    change: price - previous,
-    change_percent: ((price - previous) / previous) * 100,
-    market_state: String(meta.marketState || "UNKNOWN").replaceAll("_", " "),
-    market_time: meta.regularMarketTime ? ist(meta.regularMarketTime) : "Not supplied by source",
-    fetched_at: ist(Math.floor(fetched.getTime() / 1000)),
-    history,
-    source: "Yahoo Finance chart endpoint; may be delayed"
+    change,
+    change_percent: changePercent,
+    open: number(pick("iopen", "open")),
+    high: number(pick("high", "dayhigh")),
+    low: number(pick("low", "daylow")),
+    market_state: "BSE LIVE QUOTE",
+    market_time: String(pick("dttm", "datetime", "markettime") ?? "Not supplied by BSE"),
+    fetched_at: fetchedAt,
+    history: [],
+    source: "BSE India RealTimeBseIndiaAPI",
+    feed_type: "BSE LIVE FEED",
+    note: "Provider timing and availability are not guaranteed; not an exchange-certified or broker-grade feed."
   };
 }
 
@@ -78,10 +120,10 @@ export default {
       return json({ error: "Not found" }, 404);
     }
     try {
-      return json(await getQuote());
+      return json(await getLiveSensex());
     } catch (error) {
       return json({
-        error: "Unable to retrieve the latest available SENSEX snapshot",
+        error: "Unable to retrieve the latest BSE SENSEX quote",
         detail: String(error?.message || error),
         fetched_at: new Date().toISOString()
       }, 502);
