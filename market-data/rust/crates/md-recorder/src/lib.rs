@@ -33,11 +33,14 @@ impl Ingress {
     /// Stamp and enqueue one original venue message. A full queue is observable
     /// as a sequence hole; callers must stop treating the capture as continuous.
     pub fn accept(&mut self, payload: Vec<u8>, exchange_ts_ns: Option<i64>, local_recv_ts_ns: i64) -> Result<IngressOutcome, String> {
+        self.accept_stream(self.stream.clone(), payload, exchange_ts_ns, local_recv_ts_ns)
+    }
+
+    pub fn accept_stream(&mut self, stream: impl Into<String>, payload: Vec<u8>, exchange_ts_ns: Option<i64>, local_recv_ts_ns: i64) -> Result<IngressOutcome, String> {
         let seq = self.next_seq;
         self.next_seq = self.next_seq.checked_add(1).ok_or_else(|| "ingest sequence exhausted".to_owned())?;
         let record = CaptureRecord::venue_payload(
-            self.provider.clone(), self.symbol.clone(), self.stream.clone(),
-            exchange_ts_ns, local_recv_ts_ns, seq, payload
+            self.provider.clone(), self.symbol.clone(), stream, exchange_ts_ns, local_recv_ts_ns, seq, payload
         );
         match self.tx.try_send(record) {
             Ok(()) => {
