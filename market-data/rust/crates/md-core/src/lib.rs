@@ -77,7 +77,6 @@ impl CaptureRecord {
     }
 
     #[must_use]
-    #[must_use]
     pub fn venue_snapshot(
         provider: impl Into<String>,
         symbol: impl Into<String>,
