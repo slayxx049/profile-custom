@@ -1,0 +1,22 @@
+[package]
+name = "md-normalize"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+md-core.workspace = true
+md-storage.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+arrow-array = "55"
+arrow-schema = "55"
+parquet = { version = "55", default-features = false, features = ["arrow", "zstd"] }
+
+[[bin]]
+name = "normalize"
+path = "src/bin/normalize.rs"
+
+[lints]
+workspace = true
