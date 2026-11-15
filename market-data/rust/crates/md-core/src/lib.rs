@@ -39,7 +39,7 @@ pub struct CaptureRecord {
     pub local_recv_ts_ns: i64,
     /// Monotonic sequence assigned by this recorder session.
     pub ingest_seq: u64,
-    /// Original provider bytes, base64 encoded by serde_json.
+    /// Original provider bytes, represented as a byte array by serde_json.
     pub payload: Vec<u8>,
     pub gap: Option<GapInfo>,
 }
