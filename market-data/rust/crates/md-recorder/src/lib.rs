@@ -49,6 +49,18 @@ impl Ingress {
         }
     }
 
+    /// Enqueue a REST snapshot as a distinct raw frame kind.
+    pub fn accept_snapshot(&mut self, payload: Vec<u8>, local_recv_ts_ns: i64) -> Result<u64, String> {
+        let seq = self.next_seq;
+        self.next_seq = self.next_seq.checked_add(1).ok_or_else(|| "ingest sequence exhausted".to_owned())?;
+        let record = CaptureRecord::venue_snapshot(
+            self.provider.clone(), self.symbol.clone(), self.stream.clone(),
+            local_recv_ts_ns, seq, payload
+        );
+        self.tx.send(record).map_err(|_| "capture writer disconnected".to_owned())?;
+        Ok(seq)
+    }
+
     /// Create a gap record after reconnect or known transport discontinuity.
     pub fn gap(&mut self, cause: GapCause, local_recv_ts_ns: i64, detail: Option<String>) -> Result<u64, String> {
         let seq = self.next_seq;
