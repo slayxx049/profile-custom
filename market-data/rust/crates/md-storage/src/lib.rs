@@ -14,6 +14,7 @@ const FILE_MAGIC: &[u8; 8] = b"MDRAW001";
 const BLOCK_MAGIC: &[u8; 4] = b"MDBL";
 const END_MAGIC: &[u8; 4] = b"MDEN";
 const MAX_BLOCK_BYTES: usize = 64 * 1024 * 1024;
+const MAX_COMPRESSED_BLOCK_BYTES: usize = MAX_BLOCK_BYTES + 1024 * 1024;
 
 #[derive(Debug, Error)]
 pub enum StorageError {
@@ -168,7 +169,7 @@ pub fn read_capture<R: Read>(input: &mut R) -> Result<ReadCapture, StorageError>
         let raw_len = u32::from_le_bytes(fields[0..4].try_into().unwrap()) as usize;
         let compressed_len = u32::from_le_bytes(fields[4..8].try_into().unwrap()) as usize;
         let expected_crc = u32::from_le_bytes(fields[8..12].try_into().unwrap());
-        if raw_len > MAX_BLOCK_BYTES { return Err(StorageError::OversizedBlock); }
+        if raw_len > MAX_BLOCK_BYTES || compressed_len > MAX_COMPRESSED_BLOCK_BYTES { return Err(StorageError::OversizedBlock); }
         let mut compressed = vec![0_u8; compressed_len];
         if input.read_exact(&mut compressed).is_err() {
             truncated_bytes = compressed_len as u64;
