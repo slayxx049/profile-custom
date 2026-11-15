@@ -1,0 +1,17 @@
+[package]
+name = "md-verify"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+md-core.workspace = true
+md-storage.workspace = true
+
+[[bin]]
+name = "verify"
+path = "src/bin/verify.rs"
+
+[lints]
+workspace = true
