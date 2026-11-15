@@ -5,6 +5,7 @@ members = [
   "crates/md-storage",
   "crates/md-recorder",
   "crates/md-binance",
+  "crates/md-book",
   "crates/md-normalize",
   "crates/md-verify",
 ]
