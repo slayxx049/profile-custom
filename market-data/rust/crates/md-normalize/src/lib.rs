@@ -13,6 +13,8 @@ use arrow_schema::{DataType, Field, Schema};
 use md_core::{CaptureRecord, RecordKind};
 use md_storage::{read_file, StorageError};
 use parquet::arrow::ArrowWriter;
+use parquet::basic::{Compression, ZstdLevel};
+use parquet::file::properties::WriterProperties;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -101,7 +103,10 @@ fn write_dataset(path: &Path, records: &[CaptureRecord]) -> Result<(), Normalize
     ];
     let batch = RecordBatch::try_new(schema.clone(), columns)?;
     let file = File::create(path)?;
-    let mut writer = ArrowWriter::try_new(file, schema, None)?;
+    let properties = WriterProperties::builder()
+        .set_compression(Compression::ZSTD(ZstdLevel::default()))
+        .build();
+    let mut writer = ArrowWriter::try_new(file, schema, Some(properties))?;
     writer.write(&batch)?;
     writer.close()?;
     Ok(())
