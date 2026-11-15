@@ -1,0 +1,112 @@
+name: Market Data Runtime Check
+
+on:
+  push:
+    branches:
+      - checkpoint-1-reference-pipeline
+    paths:
+      - "market-data/rust/**"
+      - ".github/workflows/market-data-runtime-check.yml"
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "Public Binance spot symbol"
+        required: true
+        default: "BTCUSDT"
+        type: string
+      capture_seconds:
+        description: "Capture duration (30–180 seconds)"
+        required: true
+        default: "90"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MARKET_SYMBOL: ${{ github.event.inputs.symbol || 'BTCUSDT' }}
+      CAPTURE_SECONDS: ${{ github.event.inputs.capture_seconds || '90' }}
+    steps:
+      - name: Check out checkpoint branch
+        uses: actions/checkout@v4
+
+      - name: Validate inputs
+        shell: bash
+        run: |
+          if [[ ! "$MARKET_SYMBOL" =~ ^[A-Z0-9]{5,20}$ ]]; then
+            echo "Invalid symbol format"
+            exit 1
+          fi
+          if [[ ! "$CAPTURE_SECONDS" =~ ^[0-9]+$ ]] || (( CAPTURE_SECONDS < 30 || CAPTURE_SECONDS > 180 )); then
+            echo "Capture duration must be between 30 and 180 seconds"
+            exit 1
+          fi
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build pipeline
+        working-directory: market-data/rust
+        run: cargo build --release --workspace
+
+      - name: Capture public Binance market data
+        working-directory: market-data/rust
+        run: |
+          mkdir -p ../../runtime-artifacts/raw
+          cargo run --release -p md-binance --bin record -- "$MARKET_SYMBOL" ../../runtime-artifacts/raw "$CAPTURE_SECONDS"
+
+      - name: Verify raw capture
+        working-directory: market-data/rust
+        run: |
+          CAPTURE="$(find ../../runtime-artifacts/raw -maxdepth 1 -type f -name '*.mdraw.zst' -print -quit)"
+          test -n "$CAPTURE"
+          echo "$CAPTURE" > ../../runtime-artifacts/capture-path.txt
+          cargo run --release -p md-verify --bin verify -- "$CAPTURE"
+
+      - name: Normalize capture to Parquet
+        working-directory: market-data/rust
+        run: |
+          CAPTURE="$(cat ../../runtime-artifacts/capture-path.txt)"
+          cargo run --release -p md-normalize --bin normalize -- "$CAPTURE" ../../runtime-artifacts/parquet
+
+      - name: Read back every Parquet file
+        run: |
+          python -m pip install --disable-pip-version-check pyarrow
+          python - <<'PY'
+          from pathlib import Path
+          import pyarrow.parquet as pq
+
+          files = sorted(Path("runtime-artifacts/parquet").rglob("*.parquet"))
+          if not files:
+              raise SystemExit("No Parquet files were produced")
+
+          total_rows = 0
+          for path in files:
+              table = pq.read_table(path)
+              rows = table.num_rows
+              if rows == 0:
+                  raise SystemExit(f"Empty Parquet dataset: {path}")
+              required = {"ingest_seq", "local_recv_ts_ns", "provider", "symbol", "payload"}
+              missing = required.difference(table.column_names)
+              if missing:
+                  raise SystemExit(f"{path}: missing columns {sorted(missing)}")
+              total_rows += rows
+              print(f"READ OK: {path} | rows={rows} | columns={len(table.column_names)}")
+
+          if total_rows == 0:
+              raise SystemExit("Parquet read-back returned zero rows")
+          print(f"PARQUET READ-BACK PASSED: files={len(files)} rows={total_rows}")
+          PY
+
+      - name: Save runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkpoint-1-runtime-evidence
+          path: runtime-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
