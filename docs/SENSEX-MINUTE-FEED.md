@@ -37,7 +37,7 @@ Open the Worker URL with `/sensex`. A successful response should be JSON contain
 - `fetched_at`: when the Worker retrieved the quote
 - `source`: `BSE India RealTimeBseIndiaAPI`
 
-If the endpoint returns HTTP 502, BSE may be unavailable, may have changed its response, or may be blocking the request. The dashboard will show the error rather than silently presenting an old quote as live.
+If the endpoint returns HTTP 502, BSE may be unavailable, may have changed its response, or may be blocking the request. The dashboard will show the error rather than silently presenting an old quote as live.\n\nThe same Worker also exposes `/sensex.svg`, a dynamically rendered SVG market card. After deploying the Worker, you can use `https://YOUR-WORKER-URL/sensex.svg` as the README image source to show the latest quote in the GitHub profile. GitHub and browser image caches may still delay visual refreshes.
 
 ## Data limitations
 
