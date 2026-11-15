@@ -14,6 +14,7 @@ fn main() -> ExitCode {
             println!("clean trailer: {}", r.complete);
             println!("record count matches: {}", r.count_matches);
             println!("truncated bytes: {}", r.truncated_bytes);
+            for error in &r.book_errors { println!("ERROR book integrity: {error}"); }
             for (previous, current) in &r.sequence_holes {
                 println!("ERROR sequence discontinuity: {previous} -> {current}");
             }
