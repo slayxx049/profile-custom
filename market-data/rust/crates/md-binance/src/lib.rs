@@ -143,7 +143,7 @@ pub async fn run_capture(symbol: String, root: PathBuf, seconds: Option<u64>) ->
                 },
                 _ = snapshot_interval.tick() => {
                     match fetch_depth_snapshot(&symbol).await {
-                        Ok(snapshot) => ingress.accept_snapshot_on_stream("rest:depth-snapshot", snapshot, now_ns()).map_err(AdapterError::Writer)?,
+                        Ok(snapshot) => { ingress.accept_snapshot_on_stream("rest:depth-snapshot", snapshot, now_ns()).map_err(AdapterError::Writer)?; }
                         Err(e) => { let _ = ingress.gap(GapCause::SnapshotUnavailable, now_ns(), Some(e.to_string())); }
                     }
                 },
