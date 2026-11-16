@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="390" viewBox="0 0 1200 390" role="img" aria-labelledby="title desc">
+<title id="title">AI Job Finder project architecture</title>
+<desc id="desc">A high-level diagram showing profile input and job discovery flowing through parsing, matching and scoring, then ranked results.</desc>
+<defs>
+ <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101b35"/><stop offset="1" stop-color="#21183f"/></linearGradient>
+ <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#38bdf8"/><stop offset=".5" stop-color="#a78bfa"/><stop offset="1" stop-color="#34d399"/></linearGradient>
+ <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#9bbcff" stroke-opacity=".06"/></pattern>
+</defs>
+<rect width="1200" height="390" rx="22" fill="url(#panel)"/><rect width="1200" height="390" rx="22" fill="url(#grid)"/>
+<text x="42" y="52" fill="#e2e8f0" font-family="Arial,sans-serif" font-size="23" font-weight="700">AI JOB FINDER / SYSTEM OVERVIEW</text>
+<text x="42" y="78" fill="#94a3b8" font-family="monospace" font-size="12">HIGH-LEVEL PROJECT FLOW · RULE-BASED MATCHING</text>
+<g font-family="Arial,sans-serif">
+ <rect x="42" y="132" width="210" height="168" rx="15" fill="#101f38" stroke="#38bdf8" stroke-width="1.5"/>
+ <text x="62" y="165" fill="#7dd3fc" font-size="12" font-weight="700">01 / INPUT</text>
+ <text x="62" y="199" fill="#f8fafc" font-size="21" font-weight="700">Candidate</text>
+ <text x="62" y="225" fill="#cbd5e1" font-size="14">Resume / profile</text>
+ <text x="62" y="250" fill="#94a3b8" font-size="12">Skills · interests</text>
+ <text x="62" y="270" fill="#94a3b8" font-size="12">Experience signals</text>
+ <rect x="290" y="132" width="210" height="168" rx="15" fill="#17213d" stroke="#818cf8" stroke-width="1.5"/>
+ <text x="310" y="165" fill="#a5b4fc" font-size="12" font-weight="700">02 / DISCOVERY</text>
+ <text x="310" y="199" fill="#f8fafc" font-size="21" font-weight="700">Job Sources</text>
+ <text x="310" y="225" fill="#cbd5e1" font-size="14">Listings / metadata</text>
+ <text x="310" y="250" fill="#94a3b8" font-size="12">Collection and cleanup</text>
+ <text x="310" y="270" fill="#94a3b8" font-size="12">Normalize fields</text>
+ <rect x="538" y="132" width="210" height="168" rx="15" fill="#241d43" stroke="#c084fc" stroke-width="1.5"/>
+ <text x="558" y="165" fill="#d8b4fe" font-size="12" font-weight="700">03 / MATCHING</text>
+ <text x="558" y="199" fill="#f8fafc" font-size="21" font-weight="700">Scoring</text>
+ <text x="558" y="225" fill="#cbd5e1" font-size="14">Rule-based comparison</text>
+ <text x="558" y="250" fill="#94a3b8" font-size="12">Skills and role signals</text>
+ <text x="558" y="270" fill="#94a3b8" font-size="12">Explainable score</text>
+ <rect x="786" y="132" width="210" height="168" rx="15" fill="#12332f" stroke="#34d399" stroke-width="1.5"/>
+ <text x="806" y="165" fill="#6ee7b7" font-size="12" font-weight="700">04 / RESULTS</text>
+ <text x="806" y="199" fill="#f8fafc" font-size="21" font-weight="700">Ranked Jobs</text>
+ <text x="806" y="225" fill="#cbd5e1" font-size="14">Relevant opportunities</text>
+ <text x="806" y="250" fill="#94a3b8" font-size="12">Score and key matches</text>
+ <text x="806" y="270" fill="#94a3b8" font-size="12">Review before applying</text>
+ <rect x="1034" y="132" width="124" height="168" rx="15" fill="#2a1d38" stroke="#e879f9" stroke-width="1.5"/>
+ <text x="1052" y="165" fill="#f0abfc" font-size="12" font-weight="700">05 / UI</text>
+ <text x="1052" y="199" fill="#f8fafc" font-size="19" font-weight="700">Explore</text>
+ <text x="1052" y="225" fill="#cbd5e1" font-size="13">Filter</text>
+ <text x="1052" y="248" fill="#cbd5e1" font-size="13">Compare</text>
+ <text x="1052" y="271" fill="#cbd5e1" font-size="13">Save</text>
+</g>
+<g fill="none" stroke="url(#line)" stroke-width="3" stroke-linecap="round"><path d="M252 216h34m-9-8 9 8-9 8"/><path d="M500 216h34m-9-8 9 8-9 8"/><path d="M748 216h34m-9-8 9 8-9 8"/><path d="M996 216h34m-9-8 9 8-9 8"/></g>
+<text x="42" y="350" fill="#94a3b8" font-family="monospace" font-size="12">DESIGN PRINCIPLE: show the match signals so a person can review the result.</text>
+</svg>

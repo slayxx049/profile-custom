@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="190" viewBox="0 0 1200 190" role="img" aria-labelledby="title desc">
+<title id="title">Have something hard to build? Let's talk.</title>
+<desc id="desc">A dark blue and violet gradient contact banner with subtle grid lines.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#111d42"/><stop offset=".5" stop-color="#252052"/><stop offset="1" stop-color="#351b54"/></linearGradient>
+ <linearGradient id="txt" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#93c5fd"/><stop offset=".55" stop-color="#c4b5fd"/><stop offset="1" stop-color="#f0abfc"/></linearGradient>
+ <pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M26 0H0V26" fill="none" stroke="#c4b5fd" stroke-opacity=".08"/></pattern>
+</defs>
+<rect width="1200" height="190" rx="22" fill="url(#bg)"/><rect width="1200" height="190" rx="22" fill="url(#grid)"/>
+<circle cx="1020" cy="10" r="160" fill="#8b5cf6" opacity=".12"/>
+<text x="600" y="83" text-anchor="middle" fill="url(#txt)" font-family="Arial,sans-serif" font-size="39" font-weight="800">Have something hard to build? Let's talk.</text>
+<text x="600" y="119" text-anchor="middle" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="17">Ideas · collaboration · useful software</text>
+<text x="600" y="157" text-anchor="middle" fill="#93c5fd" font-family="monospace" font-size="12" letter-spacing="2">OPEN TO CONNECT</text>
+</svg>

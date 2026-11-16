@@ -1,161 +1,118 @@
-<!-- Vice City-inspired developer homepage for slayxx049. Keep all project and performance claims factual. -->
+<!-- Checkpoint 1: reproduce the visual structure of the reference profile with original assets and accurate project details. -->
 
 <p align="center">
-  <img src="assets/vice-city-banner.svg" alt="Vice City-inspired neon skyline" width="100%" />
-</p>
-
-<h1 align="center">HEY, I'M SLAYXX049</h1>
-<p align="center">
-  <strong>CODE · EXPERIMENT · BUILD · REPEAT</strong><br/>
-  B.Tech Computer Science &amp; Engineering student · AI/ML<br/>
-  Exploring software, AI/ML, cybersecurity, and systems through hands-on projects.
+  <img src="assets/profile-hero.svg" width="100%" alt="Slayxx049 — CSE, AI/ML and software builder"/>
 </p>
 
 <p align="center">
-  <a href="https://slayxx049.github.io/build-port/"><img src="https://img.shields.io/badge/PORTFOLIO-EXPLORE-ff79c6?style=for-the-badge&labelColor=111329" alt="Portfolio"/></a>
-  <a href="https://www.linkedin.com/in/olga-wills-9926893a2"><img src="https://img.shields.io/badge/LINKEDIN-CONNECT-7df9ff?style=for-the-badge&labelColor=111329" alt="LinkedIn"/></a>
-  <a href="mailto:olgamartini4567@gmail.com"><img src="https://img.shields.io/badge/EMAIL-SAY%20HELLO-ffe66d?style=for-the-badge&labelColor=111329" alt="Email"/></a>
-  <a href="https://github.com/slayxx049?tab=repositories"><img src="https://img.shields.io/badge/REPOSITORIES-BROWSE-b9a0ff?style=for-the-badge&labelColor=111329" alt="Repositories"/></a>
+  <a href="https://slayxx049.github.io/build-port/"><img src="https://img.shields.io/badge/PORTFOLIO-EXPLORE-8B9CFF?style=for-the-badge&labelColor=101426" alt="Portfolio"/></a>
+  <a href="https://www.linkedin.com/in/olga-wills-9926893a2"><img src="https://img.shields.io/badge/LINKEDIN-CONNECT-60A5FA?style=for-the-badge&labelColor=101426" alt="LinkedIn"/></a>
+  <a href="mailto:olgamartini4567@gmail.com"><img src="https://img.shields.io/badge/EMAIL-SAY_HELLO-F472B6?style=for-the-badge&labelColor=101426" alt="Email"/></a>
+  <a href="https://github.com/slayxx049?tab=repositories"><img src="https://img.shields.io/badge/REPOSITORIES-BROWSE-A78BFA?style=for-the-badge&labelColor=101426" alt="Repositories"/></a>
 </p>
-<p align="center"><sub>Building at the intersection of curiosity, code, and late-night ideas.</sub></p>
-
----
-
-## PLAYER PROFILE
 
 <table>
   <tr>
-    <td width="50%" valign="top">
-      <strong>THE BASE</strong><br/>
-      B.Tech · Computer Science &amp; Engineering (AI/ML)<br/><br/>
-      <strong>AREAS OF INTEREST</strong><br/>
-      Software engineering · AI/ML · Cybersecurity
+    <td align="center" width="20%">
+      <sub>ACADEMIC TRACK</sub><br/>
+      <strong> CSE </strong><br/>
+      <sub>AI / ML</sub>
     </td>
-    <td width="50%" valign="top">
-      <strong>BUILD PHILOSOPHY</strong><br/>
-      Learn by making things, testing them, and improving what does not work.<br/><br/>
-      <strong>CURRENT FOCUS</strong><br/>
-      Practical applications, automation, and developer tooling
+    <td align="center" width="20%">
+      <sub>TOOLKIT</sub><br/>
+      <strong>07</strong><br/>
+      <sub>languages &amp; tools</sub>
+    </td>
+    <td align="center" width="20%">
+      <sub>FOCUS</sub><br/>
+      <strong>AI +</strong><br/>
+      <sub>software projects</sub>
+    </td>
+    <td align="center" width="20%">
+      <sub>BUILD STYLE</sub><br/>
+      <strong>HANDS-ON</strong><br/>
+      <sub>learn by building</sub>
+    </td>
+    <td align="center" width="20%">
+      <sub>MODE</sub><br/>
+      <strong>ITERATE</strong><br/>
+      <sub>test · improve</sub>
     </td>
   </tr>
 </table>
 
-## MARKET WATCH // SENSEX
+## FLAGSHIP / AI JOB FINDER
+
+A Python-based job-discovery application that collects opportunities and compares them against a candidate profile. Its matching logic uses explicit, rule-based signals so the result can be inspected rather than treated as an unexplained AI decision.
 
 <p align="center">
-  <a href="sensex-dashboard.html">
-    <img src="assets/sensex.svg" width="100%" alt="Sensex market-watch dashboard snapshot with indicative index quote and illustrative market-depth visual"/>
-  </a>
+  <img src="assets/ai-job-finder-architecture.svg" width="100%" alt="AI Job Finder architecture: candidate profile, job discovery, rule-based scoring, ranked results and review"/>
 </p>
-<p align="center">
-  <a href="sensex-dashboard.html"><img src="https://img.shields.io/badge/OPEN%20MARKET%20TERMINAL-ff79c6?style=for-the-badge&labelColor=111329" alt="Open market terminal"/></a>
-  <a href="https://finance.yahoo.com/quote/%5EBSESN/"><img src="https://img.shields.io/badge/LIVE%20QUOTE-7df9ff?style=for-the-badge&labelColor=111329" alt="View Sensex quote"/></a>
-</p>
-<p align="center"><sub>Vice City-styled market panel · Optional BSE SENSEX live-quote feed through a Cloudflare Worker (60-second polling while the dashboard is open). The Worker must be deployed and configured; otherwise the panel uses the scheduled repository snapshot. Provider timing and availability are not guaranteed. The bid/ask depth illustration is simulated, not real exchange order-book data.</sub></p>
-<p align="center"><sub><a href="docs/SENSEX-MINUTE-FEED.md">BSE LIVE-FEED SETUP &amp; DATA LIMITATIONS</a></sub></p>
-
-## GITHUB STATS // PLAYER STATUS
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=slayxx049&show_icons=true&hide_border=true&bg_color=0d1022&title_color=ff79c6&text_color=e9e7ff&icon_color=7df9ff&rank_icon=github" height="165" alt="GitHub profile statistics"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=slayxx049&layout=compact&hide_border=true&bg_color=0d1022&title_color=ff79c6&text_color=e9e7ff" height="165" alt="Most used programming languages"/>
+  <a href="https://ai-j0b-finder.streamlit.app/"><img src="https://img.shields.io/badge/OPEN_APP-60A5FA?style=for-the-badge&labelColor=101426" alt="Open AI Job Finder"/></a>
 </p>
 
-## FEATURED BUILD // AI JOB FINDER
+<p align="center"><sub>Project focus: job discovery · profile matching · explainable scoring · ranked results</sub></p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/FEATURED%20PROJECT-AI%20JOB%20FINDER-ff79c6?style=for-the-badge&labelColor=111329" alt="Featured project: AI Job Finder"/>
-</p>
-
-A Python-based job-discovery application that helps explore opportunities and compare them against a profile using job discovery and scoring components.
-
-<p align="center">
-  <a href="https://ai-j0b-finder.streamlit.app/"><img src="https://img.shields.io/badge/OPEN%20APP-7df9ff?style=for-the-badge&labelColor=111329" alt="Open AI Job Finder"/></a>
-  <a href="https://github.com/slayxx049/ai-job-finder"><img src="https://img.shields.io/badge/PROJECT%20REPOSITORY-ffe66d?style=for-the-badge&labelColor=111329" alt="AI Job Finder repository"/></a>
-</p>
-
-## SELECTED BUILDS
-
-<p align="center">
-  <a href="https://github.com/slayxx049/my-ai-agent"><img src="https://img.shields.io/badge/YOUTUBE%20AUTOMATION-IN%20PROGRESS-ff79c6?style=for-the-badge&labelColor=111329" alt="YouTube automation project"/></a>
-  <a href="https://slayxx049.github.io/build-port/"><img src="https://img.shields.io/badge/PORTFOLIO-BUILD%20LOG-7df9ff?style=for-the-badge&labelColor=111329" alt="Portfolio and build log"/></a>
-</p>
+## SELECTED WORK
 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <h3>YOUTUBE AUTOMATION</h3>
-      An in-progress workflow for turning video ideas into assembled content, with scripting and video-processing components.
-      <br/><br/>
-      <a href="https://github.com/slayxx049/my-ai-agent">Explore repository →</a>
+      <h3>AI JOB FINDER</h3>
+      <sub>PYTHON · STREAMLIT · SCORING</sub>
+      <p>Job discovery and rule-based profile matching, presented through a simple application interface.</p>
+      <a href="https://ai-j0b-finder.streamlit.app/">OPEN PROJECT →</a>
     </td>
+    <td width="50%" valign="top">
+      <h3>YOUTUBE AUTOMATION AGENT</h3>
+      <sub>PYTHON · NODE.JS · VIDEO TOOLING</sub>
+      <p>An in-progress workflow for assisting video production, from content preparation to processing and assembly.</p>
+      <a href="https://github.com/slayxx049/my-ai-agent">EXPLORE REPOSITORY →</a>
+    </td>
+  </tr>
+  <tr>
     <td width="50%" valign="top">
       <h3>PORTFOLIO / BUILD LOG</h3>
-      A personal website documenting projects, coding experiments, and the process behind the builds.
-      <br/><br/>
-      <a href="https://slayxx049.github.io/build-port/">Visit portfolio →</a>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h3>DAILY MINI BYTES</h3>
-      A web project focused on news, blogs, and technology content.
-      <br/><br/>
-      <a href="https://github.com/slayxx049/dmb_web_daily-mini-byte">Explore repository →</a>
+      <sub>WEB · INTERACTION · PROJECT JOURNAL</sub>
+      <p>A personal site documenting projects, coding experiments, and the process behind each build.</p>
+      <a href="https://slayxx049.github.io/build-port/">VISIT PORTFOLIO →</a>
     </td>
     <td width="50%" valign="top">
-      <h3>MORE EXPERIMENTS</h3>
-      Prototypes and technical experiments across programming, automation, and app development.
-      <br/><br/>
-      <a href="https://github.com/slayxx049?tab=repositories">Browse all repositories →</a>
+      <h3>APP LOCKER</h3>
+      <sub>ANDROID · APP PROTOTYPE</sub>
+      <p>An app-lock prototype exploring app selection and local device authentication flows.</p>
+      <a href="https://github.com/slayxx049/applocker">VIEW REPOSITORY →</a>
     </td>
   </tr>
 </table>
 
-## THE TOOLKIT
+## GITHUB / ACTIVITY
+
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=slayxx049&show_icons=true&hide_border=true&bg_color=0B1020&title_color=A78BFA&text_color=CBD5E1&icon_color=60A5FA&rank_icon=github" height="170" alt="GitHub profile statistics"/>
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=slayxx049&layout=compact&hide_border=true&bg_color=0B1020&title_color=A78BFA&text_color=CBD5E1" height="170" alt="Most used programming languages"/>
+</p>
+
+<p align="center">
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=slayxx049&bg_color=0B1020&color=CBD5E1&line=60A5FA&point=F472B6&area=true&hide_border=true" width="100%" alt="GitHub contribution activity graph"/>
+</p>
+
+## STACK
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=html,python,git,github,cpp,c&perline=6" alt="HTML, Python, Git, GitHub, C++ and C"/>
   <img src="https://img.shields.io/badge/MATLAB-0076A8?style=for-the-badge&logo=mathworks&logoColor=white" alt="MATLAB"/>
 </p>
-<p align="center"><sub>Tools and languages I have worked with across coursework and projects.</sub></p>
-
-## BUILD LOOP
+<p align="center"><sub>HTML · Python · Git · GitHub · C++ · C · MATLAB</sub></p>
 
 <p align="center">
-  <img src="assets/build-loop.svg" width="100%" alt="Idea, design, build, test, ship — repeat"/>
-</p>
-
-## CONTRIBUTION ACTIVITY
-
-<p align="center">
-  <img src="https://streak-stats.demolab.com?user=slayxx049&hide_border=true&background=0D1022&ring=FF79C6&fire=FFE66D&currStreakLabel=7DF9FF&sideLabels=E9E7FF&dates=AAA6C8" alt="GitHub contribution streak"/>
+  <img src="assets/contact-banner.svg" width="100%" alt="Have something hard to build? Let's talk."/>
 </p>
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=slayxx049&bg_color=0d1022&color=e9e7ff&line=7df9ff&point=ff79c6&area=true&hide_border=true" width="100%" alt="GitHub contribution activity graph"/>
+  <a href="https://www.linkedin.com/in/olga-wills-9926893a2"><img src="https://img.shields.io/badge/LINKEDIN-LET'S_CONNECT-60A5FA?style=for-the-badge&labelColor=101426" alt="Connect on LinkedIn"/></a>
+  <a href="mailto:olgamartini4567@gmail.com"><img src="https://img.shields.io/badge/EMAIL-GET_IN_TOUCH-F472B6?style=for-the-badge&labelColor=101426" alt="Send email"/></a>
 </p>
 
-
-## MARKET DATA SYSTEMS // READ-ONLY PIPELINE
-
-<p align="center">
-  <img src="assets/market-data-architecture.svg" width="100%" alt="Read-only market-data architecture: separate Binance and SENSEX adapters, raw capture, verification, normalization, and Parquet storage"/>
-</p>
-<p align="center"><sub>Architecture blueprint · Separate crypto and SENSEX providers · Capture-first data engineering · No trading or order execution</sub></p>
-<p align="center">
-  <a href="market-data/README.md">PROJECT OVERVIEW</a> ·
-  <a href="market-data/docs/architecture.md">ARCHITECTURE</a> ·
-  <a href="market-data/docs/provider-matrix.md">PROVIDER MATRIX</a>
-</p>
-
----
-
-<p align="center">
-  <strong>HAVE AN IDEA WORTH BUILDING?</strong><br/>
-  Open to connecting, exchanging ideas, and building useful things.
-</p>
-<p align="center">
-  <a href="https://www.linkedin.com/in/olga-wills-9926893a2"><img src="https://img.shields.io/badge/LINKEDIN-LET'S%20CONNECT-7df9ff?style=for-the-badge&labelColor=111329" alt="Connect on LinkedIn"/></a>
-  <a href="mailto:olgamartini4567@gmail.com"><img src="https://img.shields.io/badge/EMAIL-GET%20IN%20TOUCH-ff79c6?style=for-the-badge&labelColor=111329" alt="Send email"/></a>
-</p>
-<p align="center"><sub>Made of curiosity, commits, and a little Vice City neon.</sub></p>
+<p align="center"><sub>BUILD · TEST · LEARN · REPEAT</sub></p>

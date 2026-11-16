@@ -1,0 +1,60 @@
+name: Profile README validation
+
+on:
+  push:
+    branches:
+      - checkpoint-1-profile-layout
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "README.md"
+      - "assets/**"
+      - ".github/workflows/profile-readme-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-profile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate README structure and local artwork
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import xml.etree.ElementTree as ET
+
+          root = Path(".")
+          readme = (root / "README.md").read_text(encoding="utf-8")
+
+          required_sections = [
+              "FLAGSHIP / AI JOB FINDER",
+              "SELECTED WORK",
+              "GITHUB / ACTIVITY",
+              "STACK",
+          ]
+          missing = [section for section in required_sections if section not in readme]
+          if missing:
+              raise SystemExit(f"Missing README sections: {missing}")
+
+          sources = re.findall(r'<img\b[^>]*\bsrc="([^"]+)"', readme)
+          local_assets = [src for src in sources if src.startswith("assets/")]
+          if not local_assets:
+              raise SystemExit("No local README artwork references were found.")
+
+          for source in local_assets:
+              path = root / source
+              if not path.is_file():
+                  raise SystemExit(f"README asset does not exist: {source}")
+              if path.suffix.lower() == ".svg":
+                  ET.parse(path)
+                  print(f"Valid SVG: {source}")
+
+          print(f"README structure valid; checked {len(local_assets)} local artwork references.")
+          PY
