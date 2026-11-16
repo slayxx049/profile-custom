@@ -43,7 +43,7 @@ jobs:
           if missing:
               raise SystemExit(f"Missing README sections: {missing}")
 
-          sources = re.findall(r'<img\\b[^>]*\\bsrc="([^"]+)"', readme)
+          sources = re.findall(r'<img\b[^>]*\bsrc="([^"]+)"', readme)
           local_assets = [src for src in sources if src.startswith("assets/")]
           if not local_assets:
               raise SystemExit("No local README artwork references were found.")
