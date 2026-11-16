@@ -11,6 +11,10 @@ md-storage.workspace = true
 md-book.workspace = true
 serde_json.workspace = true
 
+[dev-dependencies]
+md-normalize.workspace = true
+parquet = { version = "55", default-features = false, features = ["arrow", "zstd"] }
+
 [[bin]]
 name = "verify"
 path = "src/bin/verify.rs"
