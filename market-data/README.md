@@ -2,7 +2,7 @@
 
 A read-only market-data engineering project inspired by the separation of concerns in [alienxviking/quant](https://github.com/alienxviking/quant).
 
-This is an independent implementation plan. It does not copy source files from that repository. The reference repository does not currently expose a licence file authorizing code reuse.
+This is an independent implementation. It does not copy source files from that repository. The reference repository does not currently expose a licence file authorizing code reuse.
 
 ## Scope
 
@@ -54,19 +54,20 @@ Read-only inspection
 
 Raw capture is the source of truth. Normalized data is reproducible output and must be safe to rebuild.
 
-## Planned workspace
+## Rust workspace
 
 ```text
 market-data/
-  crates/
-    md-core/       shared event types and time contract
-    md-storage/    framed raw capture and recovery
-    md-recorder/   provider-neutral ingress and writer
-    md-binance/    Binance-specific public market-data adapter
-    md-sensex/     independent SENSEX provider adapter
-    md-normalize/  raw capture to ordered Parquet datasets
-    md-verify/     offline integrity checks
-    md-meta/       optional capture metadata
+  rust/
+    Cargo.toml
+    crates/
+      md-core/       provider-neutral capture event contract
+      md-storage/    compressed, checksummed raw blocks
+      md-recorder/   provider-neutral ingress and sequencing
+      md-binance/    Binance public WebSocket + REST snapshot adapter
+      md-book/       fixed-point order-book reconstruction
+      md-normalize/  event-family Parquet output
+      md-verify/     offline capture and depth-chain verifier
   docs/
     architecture.md
     data-contract.md
@@ -75,20 +76,47 @@ market-data/
 
 Crate names and interfaces are project-local; they are not copied source code.
 
-## Implementation status
+## Checkpoint 1 — reference pipeline reproduction
 
-This branch establishes the architecture and provider boundaries first. It is not yet a working recorder. A component is only marked complete after its implementation is tested against its acceptance criteria.
+This is the baseline branch. It is not considered passed until deterministic offline fixtures exercise storage, verification, reconstruction, normalization, and Parquet read-back. CI must not depend on a live exchange feed.
 
-- [x] Reference architecture reviewed
-- [x] Separate provider boundaries defined
-- [x] Trading and execution components excluded
-- [ ] Core event contract
-- [ ] Raw capture writer and recovery
-- [ ] Binance public-data adapter
-- [ ] SENSEX provider selection and adapter
-- [ ] Normalizer and Parquet read-back
-- [ ] Offline verifier
-- [ ] End-to-end test and deployment
+Implemented in this branch:
+- [x] Provider-neutral event contract with exchange and local receive timestamps
+- [x] Per-session ingest sequence
+- [x] Bounded ingress handoff
+- [x] Independently compressed raw blocks with CRC checks
+- [x] Explicit clean-close trailer and interrupted-capture detection
+- [x] Binance public trade and 100 ms depth stream adapter
+- [x] Binance REST depth snapshot capture on connect and hourly
+- [x] Fixed-point order-book reconstruction and update-id continuity checks
+- [x] Offline capture verifier
+- [x] Parquet output split into trades, book deltas, snapshots, and gaps
+
+Still required before Checkpoint 1 passes:
+- [ ] Confirm GitHub Actions passes formatting, all workspace tests, and Clippy
+- [x] Add a deterministic synthetic capture → verification → normalization → Parquet read-back integration test
+- [ ] Add deterministic fixtures for reconnects, dropped messages, and torn tails
+- [ ] Add queue/throughput/latency metrics and robust pending-gap handling
+- [ ] Add calendar/session partitioning and capture catalog metadata
+- [ ] Confirm Parquet schema and normalized payload fields against the reference contract
+- [ ] Choose and verify a separate SENSEX provider; no adapter is configured yet
+
+The Parquet files currently retain the original payload as a binary column alongside event metadata. Full venue-specific typed column extraction is still pending; this is not yet equivalent to the reference normalized schema.
+
+## Build and test
+
+Run from this directory:
+
+```bash
+cd market-data/rust
+cargo fmt --all
+cargo test --workspace
+cargo clippy --workspace --all-targets
+```
+
+Live provider capture is deliberately excluded from validation. CI uses deterministic synthetic fixtures only; it does not contact external market-data services.\n\nFor this checkpoint, validate the pipeline with synthetic, deterministic fixtures only. The automated test workflow runs formatting, workspace tests, and Clippy; it does not start the provider adapter or contact external market-data services.
+
+The synthetic end-to-end test now exercises a complete clean capture and reads back the three expected Parquet datasets. Checkpoint 1 remains unpassed until the updated GitHub Actions run succeeds and the remaining fixture cases are covered.
 
 ## Reference
 

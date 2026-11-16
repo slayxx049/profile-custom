@@ -1,0 +1,31 @@
+name: Market Data Rust
+
+on:
+  push:
+    branches:
+      - checkpoint-1-reference-pipeline
+    paths:
+      - "market-data/rust/**"
+      - ".github/workflows/market-data-rust.yml"
+  pull_request:
+    paths:
+      - "market-data/rust/**"
+      - ".github/workflows/market-data-rust.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Format
+        working-directory: market-data/rust
+        run: cargo fmt --all
+      - name: Test workspace
+        working-directory: market-data/rust
+        run: cargo test --workspace
+      - name: Clippy
+        working-directory: market-data/rust
+        run: cargo clippy --workspace --all-targets

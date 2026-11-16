@@ -2,7 +2,7 @@
 
 | Data family | Adapter | Intended transport | Current status | Important constraint |
 |---|---|---|---|---|
-| Crypto spot | `md-binance` | Public WebSocket; REST snapshot only when required by the selected stream | Planned | Binance is only the crypto source |
+| Crypto spot | `md-binance` | Public WebSocket trades + 100 ms depth; REST depth snapshot | Implemented; CI validation pending | Binance is only the crypto source |
 | BSE SENSEX | `md-sensex` | To be selected after access and terms are verified | Unconfigured | Must not be routed through Binance |
 
 ## SENSEX acceptance checklist

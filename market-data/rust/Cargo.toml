@@ -1,0 +1,40 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/md-core",
+  "crates/md-storage",
+  "crates/md-recorder",
+  "crates/md-binance",
+  "crates/md-book",
+  "crates/md-normalize",
+  "crates/md-verify",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "UNLICENSED"
+
+[workspace.dependencies]
+md-core = { path = "crates/md-core" }
+md-storage = { path = "crates/md-storage" }
+md-recorder = { path = "crates/md-recorder" }
+md-book = { path = "crates/md-book" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+zstd = "0.13"
+crc32fast = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "time", "sync", "net"] }
+futures-util = { version = "0.3", default-features = false, features = ["std", "sink"] }
+tokio-tungstenite = { version = "0.26", default-features = false, features = ["connect", "rustls-tls-webpki-roots"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

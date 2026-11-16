@@ -1,0 +1,49 @@
+name: Market Data Offline Runtime Check
+
+on:
+  push:
+    branches:
+      - checkpoint-1-reference-pipeline
+    paths:
+      - "market-data/rust/**"
+      - ".github/workflows/market-data-runtime-check.yml"
+  pull_request:
+    paths:
+      - "market-data/rust/**"
+      - ".github/workflows/market-data-runtime-check.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check formatting
+        working-directory: market-data/rust
+        run: cargo fmt --all -- --check
+
+      - name: Run deterministic workspace tests
+        working-directory: market-data/rust
+        run: cargo test --workspace
+
+      - name: Run Clippy
+        working-directory: market-data/rust
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Confirm workflow has no live capture command
+        run: |
+          if grep -nE 'cargo run .*md-binance|Capture public Binance' .github/workflows/market-data-runtime-check.yml; then
+            echo "Live capture must not run in automated validation"
+            exit 1
+          fi
+          echo "Offline validation workflow contains no live-feed capture step."
+          echo "Synthetic capture-to-Parquet integration tests are included in the workspace test run."
