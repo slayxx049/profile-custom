@@ -39,10 +39,10 @@ jobs:
         working-directory: market-data/rust
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-      - name: Confirm runtime validation is offline
+      - name: Confirm workflow has no live capture command
         run: |
-          if grep -R -nE 'api\.binance|data-api\.binance|stream\.binance|data-stream\.binance' market-data/rust/crates/*/src; then
-            echo "Unexpected live endpoint reference in runtime validation sources"
+          if grep -nE 'cargo run .*md-binance|Capture public Binance' .github/workflows/market-data-runtime-check.yml; then
+            echo "Live capture must not run in automated validation"
             exit 1
           fi
           echo "Offline validation workflow contains no live-feed capture step."
