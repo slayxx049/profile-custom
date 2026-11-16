@@ -81,6 +81,30 @@ mod tests {
     use md_storage::CaptureHeader;
 
     #[test]
+    fn rejects_any_explicit_gap_even_when_sequence_is_contiguous() {
+        let capture = ReadCapture {
+            header: CaptureHeader { provider: "fixture".into(), symbol: "SAMPLE".into(), session_id: "gap".into() },
+            records: vec![
+                CaptureRecord::venue_payload("fixture", "SAMPLE", "sample@trade", None, 1, 1, br#"{"event":"trade"}"#.to_vec()),
+                CaptureRecord::gap(
+                    "fixture", "SAMPLE", "sample@trade", 2, 2,
+                    md_core::GapInfo {
+                        cause: md_core::GapCause::Disconnect,
+                        last_good_ts_ns: 1,
+                        detail: Some("synthetic fixture gap".into()),
+                    },
+                ),
+            ],
+            complete: true,
+            truncated_bytes: 0,
+            declared_record_count: Some(2),
+        };
+        let report = verify_capture(&capture);
+        assert_eq!(report.gaps, 1);
+        assert!(!report.is_clean());
+    }
+
+    #[test]
     fn detects_missing_sequence_numbers() {
         let capture = ReadCapture {
             header: CaptureHeader { provider: "x".into(), symbol: "Y".into(), session_id: "z".into() },
