@@ -46,3 +46,4 @@ jobs:
             exit 1
           fi
           echo "Offline validation workflow contains no live-feed capture step."
+          echo "Synthetic capture-to-Parquet integration tests are included in the workspace test run."
