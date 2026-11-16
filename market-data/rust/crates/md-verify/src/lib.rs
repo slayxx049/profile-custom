@@ -70,7 +70,12 @@ pub fn verify_capture(capture: &ReadCapture) -> VerificationReport {
 impl VerificationReport {
     #[must_use]
     pub fn is_clean(&self) -> bool {
-        self.complete && self.count_matches && self.gaps == 0 && self.sequence_holes.is_empty() && self.truncated_bytes == 0 && self.book_errors.is_empty()
+        self.complete
+            && self.count_matches
+            && self.gaps == 0
+            && self.sequence_holes.is_empty()
+            && self.truncated_bytes == 0
+            && self.book_errors.is_empty()
     }
 }
 
@@ -83,11 +88,27 @@ mod tests {
     #[test]
     fn rejects_any_explicit_gap_even_when_sequence_is_contiguous() {
         let capture = ReadCapture {
-            header: CaptureHeader { provider: "fixture".into(), symbol: "SAMPLE".into(), session_id: "gap".into() },
+            header: CaptureHeader {
+                provider: "fixture".into(),
+                symbol: "SAMPLE".into(),
+                session_id: "gap".into(),
+            },
             records: vec![
-                CaptureRecord::venue_payload("fixture", "SAMPLE", "sample@trade", None, 1, 1, br#"{"event":"trade"}"#.to_vec()),
+                CaptureRecord::venue_payload(
+                    "fixture",
+                    "SAMPLE",
+                    "sample@trade",
+                    None,
+                    1,
+                    1,
+                    br#"{"event":"trade"}"#.to_vec(),
+                ),
                 CaptureRecord::gap(
-                    "fixture", "SAMPLE", "sample@trade", 2, 2,
+                    "fixture",
+                    "SAMPLE",
+                    "sample@trade",
+                    2,
+                    2,
                     md_core::GapInfo {
                         cause: md_core::GapCause::Disconnect,
                         last_good_ts_ns: 1,
@@ -107,17 +128,21 @@ mod tests {
     #[test]
     fn detects_missing_sequence_numbers() {
         let capture = ReadCapture {
-            header: CaptureHeader { provider: "x".into(), symbol: "Y".into(), session_id: "z".into() },
+            header: CaptureHeader {
+                provider: "x".into(),
+                symbol: "Y".into(),
+                session_id: "z".into(),
+            },
             records: vec![
-                CaptureRecord::venue_payload("x","Y","s",None,1,1,vec![]),
-                CaptureRecord::venue_payload("x","Y","s",None,3,3,vec![]),
+                CaptureRecord::venue_payload("x", "Y", "s", None, 1, 1, vec![]),
+                CaptureRecord::venue_payload("x", "Y", "s", None, 3, 3, vec![]),
             ],
             complete: true,
             truncated_bytes: 0,
             declared_record_count: Some(2),
         };
         let report = verify_capture(&capture);
-        assert_eq!(report.sequence_holes, vec![(1,3)]);
+        assert_eq!(report.sequence_holes, vec![(1, 3)]);
         assert!(!report.is_clean());
     }
 }
