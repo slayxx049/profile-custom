@@ -115,20 +115,9 @@ cargo test --workspace
 cargo clippy --workspace --all-targets
 ```
 
-Live provider capture is deliberately excluded from the automated validation workflow. Use deterministic fixtures for CI; do not treat a network capture as proof of pipeline correctness.\n\nThe adapter's local invocation interface (not part of CI) is:
+Live provider capture is deliberately excluded from the automated validation workflow. Use deterministic fixtures for CI; do not treat a network capture as proof of pipeline correctness.\n\nFor this checkpoint, validate the pipeline with synthetic, deterministic fixtures only. The automated test workflow runs formatting, workspace tests, and Clippy; it does not start the provider adapter or contact external market-data services.
 
-```bash
-cargo run --release -p md-binance --bin record -- BTCUSDT ../../data 60
-```
-
-Verify and normalize the generated capture:
-
-```bash
-cargo run --release -p md-verify --bin verify -- ../../data/BTCUSDT-<session>.mdraw.zst
-cargo run --release -p md-normalize --bin normalize -- ../../data/BTCUSDT-<session>.mdraw.zst ../../normalized
-```
-
-This project is limited to offline software-architecture validation in this checkpoint. The automated tests must not connect to external market-data services.
+The end-to-end synthetic capture-to-Parquet fixture is still required before Checkpoint 1 can be marked passed.
 
 ## Reference
 
