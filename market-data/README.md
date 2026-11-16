@@ -93,10 +93,9 @@ Implemented in this branch:
 - [x] Parquet output split into trades, book deltas, snapshots, and gaps
 
 Still required before Checkpoint 1 passes:
-- [ ] Run `cargo fmt --all`, `cargo test --workspace`, and `cargo clippy --workspace`
-- [ ] Run a short public-data capture and verify its trailer and sequence
-- [ ] Normalize the capture and read back all Parquet datasets
-- [ ] Add deterministic end-to-end fixtures for reconnects, dropped messages, and torn tails
+- [ ] Confirm GitHub Actions passes formatting, all workspace tests, and Clippy
+- [x] Add a deterministic synthetic capture → verification → normalization → Parquet read-back integration test
+- [ ] Add deterministic fixtures for reconnects, dropped messages, and torn tails
 - [ ] Add queue/throughput/latency metrics and robust pending-gap handling
 - [ ] Add calendar/session partitioning and capture catalog metadata
 - [ ] Confirm Parquet schema and normalized payload fields against the reference contract
@@ -115,9 +114,9 @@ cargo test --workspace
 cargo clippy --workspace --all-targets
 ```
 
-Live provider capture is deliberately excluded from the automated validation workflow. Use deterministic fixtures for CI; do not treat a network capture as proof of pipeline correctness.\n\nFor this checkpoint, validate the pipeline with synthetic, deterministic fixtures only. The automated test workflow runs formatting, workspace tests, and Clippy; it does not start the provider adapter or contact external market-data services.
+Live provider capture is deliberately excluded from validation. CI uses deterministic synthetic fixtures only; it does not contact external market-data services.\n\nFor this checkpoint, validate the pipeline with synthetic, deterministic fixtures only. The automated test workflow runs formatting, workspace tests, and Clippy; it does not start the provider adapter or contact external market-data services.
 
-The end-to-end synthetic capture-to-Parquet fixture is still required before Checkpoint 1 can be marked passed.
+The synthetic end-to-end test now exercises a complete clean capture and reads back the three expected Parquet datasets. Checkpoint 1 remains unpassed until the updated GitHub Actions run succeeds and the remaining fixture cases are covered.
 
 ## Reference
 
