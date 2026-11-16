@@ -2,7 +2,7 @@
 
 A read-only market-data engineering project inspired by the separation of concerns in [alienxviking/quant](https://github.com/alienxviking/quant).
 
-This is an independent implementation plan. It does not copy source files from that repository. The reference repository does not currently expose a licence file authorizing code reuse.
+This is an independent implementation. It does not copy source files from that repository. The reference repository does not currently expose a licence file authorizing code reuse.
 
 ## Scope
 
@@ -78,7 +78,7 @@ Crate names and interfaces are project-local; they are not copied source code.
 
 ## Checkpoint 1 — reference pipeline reproduction
 
-This is the baseline branch. It is not considered passed until the Rust workspace builds, tests pass, and a short capture completes verification and Parquet normalization.
+This is the baseline branch. It is not considered passed until deterministic offline fixtures exercise storage, verification, reconstruction, normalization, and Parquet read-back. CI must not depend on a live exchange feed.
 
 Implemented in this branch:
 - [x] Provider-neutral event contract with exchange and local receive timestamps
@@ -115,7 +115,7 @@ cargo test --workspace
 cargo clippy --workspace --all-targets
 ```
 
-Capture public Binance market data for 60 seconds:
+Live provider capture is deliberately excluded from the automated validation workflow. Use deterministic fixtures for CI; do not treat a network capture as proof of pipeline correctness.\n\nThe adapter's local invocation interface (not part of CI) is:
 
 ```bash
 cargo run --release -p md-binance --bin record -- BTCUSDT ../../data 60
@@ -128,7 +128,7 @@ cargo run --release -p md-verify --bin verify -- ../../data/BTCUSDT-<session>.md
 cargo run --release -p md-normalize --bin normalize -- ../../data/BTCUSDT-<session>.mdraw.zst ../../normalized
 ```
 
-These commands use public market-data endpoints only. They do not place orders or connect to an account.
+This project is limited to offline software-architecture validation in this checkpoint. The automated tests must not connect to external market-data services.
 
 ## Reference
 
