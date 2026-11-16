@@ -51,7 +51,6 @@ A Python-based job-discovery application that collects opportunities and compare
 
 <p align="center">
   <a href="https://ai-j0b-finder.streamlit.app/"><img src="https://img.shields.io/badge/OPEN_APP-60A5FA?style=for-the-badge&labelColor=101426" alt="Open AI Job Finder"/></a>
-  <a href="https://github.com/slayxx049/ai-job-finder"><img src="https://img.shields.io/badge/PROJECT_REPOSITORY-A78BFA?style=for-the-badge&labelColor=101426" alt="AI Job Finder repository"/></a>
 </p>
 
 <p align="center"><sub>Project focus: job discovery · profile matching · explainable scoring · ranked results</sub></p>
